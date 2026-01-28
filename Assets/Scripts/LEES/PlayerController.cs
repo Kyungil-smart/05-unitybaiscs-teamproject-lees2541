@@ -130,24 +130,43 @@ namespace UnityChan
             // 월드 방향으로 변환
             velocity = transform.TransformDirection(velocity);
 
-            bool grounded = IsGrounded();
+            // 1) 접지 판정: "올라가는 중"이면 접지로 보지 않음(가짜 접지로 공중 점프되는 것 방지)
+            bool grounded = IsGrounded() && rb.velocity.y <= groundedVelYThreshold;
+
+            // 2) 착지했으면 점프 락 해제
+            if (grounded && rb.velocity.y <= groundedVelYThreshold)
+            {
+                jumpConsumed = false;
+            }
+
             if (grounded) coyoteTimer = coyoteTime;
             else coyoteTimer = Mathf.Max(0f, coyoteTimer - Time.fixedDeltaTime);
-            // 스페이스 키를 누르면
-            // 점프 요청이 있으면 (Update에서 받아둔 입력)
-            // 점프 요청이 있고, (바닥이거나 코요테 타임 안이면) 점프
-            if (jumpRequest && coyoteTimer > 0f && currentBaseState.fullPathHash != restState)
+
+            // 3) 점프: 착지 전에는 딱 1번만 허용
+            if (jumpRequest && !jumpConsumed && coyoteTimer > 0f && currentBaseState.fullPathHash != restState)
             {
+                // 떨어지는 중이면 하강 속도는 제거(점프 높이 일정하게)
+                Vector3 vel = rb.velocity;
+                if (vel.y < 0f) vel.y = 0f;
+                rb.velocity = vel;
+
                 rb.AddForce(Vector3.up * jumpPower, ForceMode.VelocityChange);
                 anim.SetBool("Jump", true);
 
-                // 소비
+                // 소비 처리
+                jumpConsumed = true;
                 jumpRequest = false;
                 jumpRequestTimer = 0f;
                 coyoteTimer = 0f;
             }
-            
-            transform.localPosition += velocity * Time.fixedDeltaTime;  // 상/하 키 입력으로 캐릭터 이동
+
+            // 4) 이동: Transform 직접 이동 금지, Rigidbody 속도로만 이동 통일 (y는 유지, x/z만 설정)
+            Vector3 rbVel = rb.velocity;
+            rbVel.x = velocity.x;
+            rbVel.z = velocity.z;
+            rb.velocity = rbVel;
+
+           
 
 
             
@@ -169,7 +188,7 @@ namespace UnityChan
             // 현재 base layer가 jumpState일 때
             else if (currentBaseState.fullPathHash == jumpState)
             {
-                cameraObject.SendMessage("setCameraPositionJumpView");  // 점프용 카메라로 변경
+                //cameraObject.SendMessage("setCameraPositionJumpView");  // 점프용 카메라로 변경
                                                                         // State가 트랜지션 중이 아닐 때
                 if (!anim.IsInTransition(0))
                 {
