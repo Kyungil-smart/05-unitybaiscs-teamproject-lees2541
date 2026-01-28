@@ -48,8 +48,15 @@ namespace UnityChan
         private float coyoteTimer = 0f;
         private const float coyoteTime = 0.10f;       // 바닥에서 살짝 떨어져도 점프 허용(선택이지만 체감 좋아짐)
         private const float groundEpsilon = 0.06f;    // 바닥 판정 여유
+                                                      // --- Ground check by LayerMask (바닥 레이어만 감지) ---
+        [Header("Ground Check")]
+        [SerializeField] private LayerMask groundLayers; // Inspector에서 Ground 레이어(들)만 선택
+        [SerializeField] private float groundRayExtraUp = 0.10f;   // 레이 시작점 여유(머리 위)
+        [SerializeField] private float groundRayExtraDown = 0.30f; // 레이 길이 여유
 
 
+        private bool jumpPending = false;       // 점프 애니 시작 ~ 이륙 이벤트까지 대기
+        private bool jumpTakeoffEvent = false;  // Animation Event가 켜는 플래그(물리 적용은 FixedUpdate에서)
 
 
 
@@ -130,28 +137,69 @@ namespace UnityChan
             // 월드 방향으로 변환
             velocity = transform.TransformDirection(velocity);
 
-            bool grounded = IsGrounded();
-            if (grounded) coyoteTimer = coyoteTime;
-            else coyoteTimer = Mathf.Max(0f, coyoteTimer - Time.fixedDeltaTime);
-            // 스페이스 키를 누르면
-            // 점프 요청이 있으면 (Update에서 받아둔 입력)
-            // 점프 요청이 있고, (바닥이거나 코요테 타임 안이면) 점프
-            if (jumpRequest && coyoteTimer > 0f && currentBaseState.fullPathHash != restState)
+            // 1) 접지 판정: "올라가는 중"이면 접지로 보지 않음(가짜 접지로 공중 점프되는 것 방지)
+            bool grounded = IsGrounded() && rb.velocity.y <= groundedVelYThreshold;
+
+            // 2) 착지했으면 점프 락 해제
+            //    (이륙 대기중(jumpPending)일 땐 아직 점프가 끝난 것이 아니므로 락을 풀지 않음)
+            if (grounded && !jumpPending)
             {
-                rb.AddForce(Vector3.up * jumpPower, ForceMode.VelocityChange);
-                anim.SetBool("Jump", true);
+                jumpConsumed = false;
+            }
+
+            if (grounded)
+            {
+                coyoteTimer = coyoteTime;
+            }
+            else coyoteTimer = Mathf.Max(0f, coyoteTimer - Time.fixedDeltaTime);
+
+
+
+            // 점프: 착지 전까지 1번만
+            if (jumpRequest && !jumpConsumed && !jumpPending && coyoteTimer > 0f && currentBaseState.fullPathHash != restState)
+            {
+                // 하강 중이면 하강 속도만 없애기(이륙 전이라도 낙하감 완화)
+                Vector3 vel = rb.velocity;
+                if (vel.y < 0f) vel.y = 0f;
+                rb.velocity = vel;
+
+                anim.SetBool("Jump", true);  // 점프 애니 시작만
+                jumpPending = true;          // 이륙 이벤트를 기다림
+                jumpConsumed = true;         // 연타 방지 락
 
                 // 소비
                 jumpRequest = false;
                 jumpRequestTimer = 0f;
                 coyoteTimer = 0f;
             }
-            
-            transform.localPosition += velocity * Time.fixedDeltaTime;  // 상/하 키 입력으로 캐릭터 이동
+
+            // Transform 직접 이동 금지! Rigidbody 속도로만 이동 통일
+            Vector3 rbVel = rb.velocity;
+            rbVel.x = velocity.x;
+            rbVel.z = velocity.z;
+            rb.velocity = rbVel;
 
 
-            
+
+
+
             //transform.Rotate(0, h * rotateSpeed, 0);                // 좌/우 키 입력으로 캐릭터를 Y축 회전
+
+            // Animation Event가 들어오면, 다음 FixedUpdate에서 점프 힘 적용(물리 타이밍 안정)
+            if (jumpTakeoffEvent)
+            {
+                jumpTakeoffEvent = false;
+
+                if (jumpPending)
+                {
+                    Vector3 vel = rb.velocity;
+                    if (vel.y < 0f) vel.y = 0f;
+                    rb.velocity = vel;
+
+                    rb.AddForce(Vector3.up * jumpPower, ForceMode.VelocityChange);
+                    jumpPending = false;
+                }
+            }
 
 
             // 아래는 Animator 각 State에서의 처리
@@ -169,7 +217,7 @@ namespace UnityChan
             // 현재 base layer가 jumpState일 때
             else if (currentBaseState.fullPathHash == jumpState)
             {
-                cameraObject.SendMessage("setCameraPositionJumpView");  // 점프용 카메라로 변경
+                //cameraObject.SendMessage("setCameraPositionJumpView");  // 점프용 카메라로 변경
                                                                         // State가 트랜지션 중이 아닐 때
                 if (!anim.IsInTransition(0))
                 {
@@ -224,6 +272,10 @@ namespace UnityChan
                 }
             }
         }
+        public void OnJumpTakeoff()
+        {
+            jumpTakeoffEvent = true;
+        }
 
         // 캐릭터 콜라이더 크기 리셋 함수
         void resetCollider()
@@ -234,18 +286,30 @@ namespace UnityChan
         }
         private bool IsGrounded()
         {
-            // 콜라이더 bounds 기준으로 "위에서 아래로" 레이를 쏴서 바닥 판정
-            float extraUp = 0.10f;
+            // groundLayers로 "바닥 레이어만" 대상으로 레이를 쏘고,
+            // 혹시라도 자신 콜라이더가 잡히면 무시하고 다음 히트를 사용(RaycastAll).
+            float extraUp = groundRayExtraUp;
             Vector3 origin = col.bounds.center + Vector3.up * (col.bounds.extents.y + extraUp);
 
-            float expectedToGround = col.bounds.size.y + extraUp;           // 바닥에 붙어있을 때 예상 거리
-            float maxDist = expectedToGround + 0.30f;                       // 여유
+            float expectedToGround = col.bounds.size.y + extraUp;   // 바닥에 붙어있을 때 예상 거리
+            float maxDist = expectedToGround + groundRayExtraDown;  // 여유
 
-            if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, maxDist, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+            var hits = Physics.RaycastAll(
+                origin, Vector3.down, maxDist,
+                groundLayers, QueryTriggerInteraction.Ignore
+            );
+            if (hits == null || hits.Length == 0) return false;
+
+            System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+            foreach (var hit in hits)
             {
+                if (hit.collider == col) continue; // 혹시라도 자신 콜라이더면 스킵
                 return hit.distance <= expectedToGround + groundEpsilon;
             }
+
             return false;
         }
+
     }
 }
