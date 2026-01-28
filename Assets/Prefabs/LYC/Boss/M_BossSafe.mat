@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: m_jammo_bad
+  m_Name: M_BossSafe
   m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -82,5 +82,5 @@ Material:
     - _ZWrite: 0
     m_Colors:
     - _Color: {r: 0.9339623, g: 0.9339623, b: 0.9339623, a: 1}
-    - _EmissionColor: {r: 2.9595141, g: 0, b: 0.01788563, a: 1}
+    - _EmissionColor: {r: 2.9595141, g: 2.9595141, b: 2.9595141, a: 1}
   m_BuildTextureStacks: []

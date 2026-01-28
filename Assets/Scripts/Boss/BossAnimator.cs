@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class BossAnimator : MonoBehaviour
 {
-	public bool EnableDebugUI = true;
-
 	enum SkillState
 	{
 		Started,
@@ -14,7 +12,9 @@ public class BossAnimator : MonoBehaviour
 
 	private Dictionary<(BossSkillType, SkillState), int> paramsHashDict = new()
 	{
-		{ (BossSkillType.BasicCast, SkillState.Started), Animator.StringToHash("BasicAttackStarted") }
+		{ (BossSkillType.BasicCast, SkillState.Started), Animator.StringToHash("BasicSkillStarted") },
+		{ (BossSkillType.BasicCast, SkillState.Performed), Animator.StringToHash("BasicSkillPerformed") },
+		{ (BossSkillType.BasicCast, SkillState.Ended), Animator.StringToHash("BasicSkillEnded") },
 	};
 
 	private Animator animator;

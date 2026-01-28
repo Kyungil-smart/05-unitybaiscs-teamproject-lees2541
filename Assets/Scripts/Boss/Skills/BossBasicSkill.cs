@@ -6,15 +6,12 @@ using Random = UnityEngine.Random;
 public class BossBasicSkill : MonoBehaviour, IBossSkill
 {
 	[SerializeField] private GameObject projectilePrefab;
-	[SerializeField] [Range(0.1f, 5f)] private float performDelay = 3f;
 
-	private YieldInstruction yieldDelay;
+	private static readonly YieldInstruction startYield = new WaitForSeconds(4f);
+	private static readonly YieldInstruction performYield = new WaitForSeconds(1f);
+
 	private List<BossBasicSkillProjectile> projectiles;
 
-	private void Awake()
-	{
-		yieldDelay = new WaitForSeconds(performDelay);
-	}
 
 	void Init()
 	{
@@ -31,18 +28,22 @@ public class BossBasicSkill : MonoBehaviour, IBossSkill
 				.GetComponent<BossBasicSkillProjectile>());
 		}
 
-		yield return yieldDelay;
+		yield return startYield;
 	}
 
 	public IEnumerator PerformAttack()
 	{
-		
-		yield return null;
+		foreach (var p in projectiles)
+		{
+			p.Activate();
+		}
+
+		yield return performYield;
 	}
 
 	public IEnumerator EndAttack()
 	{
-		projectiles.ForEach(Destroy);
+		projectiles.ForEach(p => Destroy(p.gameObject));
 		projectiles.Clear();
 		yield return null;
 	}

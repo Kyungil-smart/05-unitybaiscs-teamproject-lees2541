@@ -6,28 +6,54 @@ using UnityEngine.Events;
 
 public class BossController : MonoBehaviour
 {
-	public bool EnableDebugUI = true;
-
 	public UnityEvent<BossSkillType> AttackStarted;
 	public UnityEvent<BossSkillType> AttackPerformed;
 	public UnityEvent<BossSkillType> AttackEnded;
-
-	private Coroutine skillCoroutine;
-	private IBossSkill skill;
+	public bool EnableDebugUI = true;
 
 	private readonly Dictionary<BossSkillType, IBossSkill> _skills = new();
+	private Coroutine skillCoroutine;
+	private IBossSkill skill;
 
 	private void Awake()
 	{
 		_skills.Add(BossSkillType.BasicCast, GetComponent<BossBasicSkill>());
 	}
 
-	IEnumerator CastBasicAttack()
+	private void Update()
 	{
-		skill = _skills[BossSkillType.BasicCast];
-		
-		AttackStarted?.Invoke(BossSkillType.BasicCast);
+		if (Input.GetMouseButtonDown(0))
+		{
+			BossVFXManager.Instance.Spawn(VFXType.GroundDustExplosion, transform.position, Quaternion.identity);
+		}
+	}
+
+	public void CastBasicAttack()
+	{
+		if (skillCoroutine != null)
+		{
+			StopCoroutine(skillCoroutine);
+		}
+
+		skillCoroutine = StartCoroutine(BasicAttackCoroutine());
+	}
+
+	IEnumerator BasicAttackCoroutine()
+	{
+		var skillType = BossSkillType.BasicCast;
+		skill = _skills[skillType];
+
+		AttackStarted?.Invoke(skillType);
 		yield return skill.StartAttack();
+
+		AttackPerformed?.Invoke(skillType);
+		yield return skill.PerformAttack();
+
+		AttackEnded?.Invoke(skillType);
+		yield return skill.EndAttack();
+
+		skillCoroutine = null;
+		skill = null;
 	}
 
 	private void OnGUI()
@@ -37,7 +63,7 @@ public class BossController : MonoBehaviour
 
 		if (GUILayout.Button("Attack(Basic)"))
 		{
-			skillCoroutine = StartCoroutine(CastBasicAttack());
+			CastBasicAttack();
 		}
 	}
 }
