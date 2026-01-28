@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using Random = UnityEngine.Random;
 
 public class BossController : MonoBehaviour
 {
@@ -24,7 +25,8 @@ public class BossController : MonoBehaviour
 	{
 		if (Input.GetMouseButtonDown(0))
 		{
-			BossVFXManager.Instance.Spawn(VFXType.GroundDustExplosion, transform.position, Quaternion.identity);
+			BossVFXManager.Instance.Spawn(VFXType.GroundDustExplosion,
+				new Vector3(Random.Range(-5, 5), 0.01f, Random.Range(-5, 5)), Quaternion.identity);
 		}
 	}
 

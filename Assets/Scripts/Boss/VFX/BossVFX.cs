@@ -12,17 +12,20 @@ public class BossVFX : MonoBehaviour
 	private ParticleSystem ps;
 	private Coroutine lifeCoroutine;
 
-	private float lifetimeLimit = 8f;
+	private bool isInitialized;
+	private float lifetimeLimit = 3f;
 
 	public void Initialize(VFXType type, IObjectPool<GameObject> pool)
 	{
 		vfxType = type;
 		this.pool = pool;
 		ps = GetComponent<ParticleSystem>();
+		isInitialized = true;
 	}
 
 	void OnEnable()
 	{
+		if (!isInitialized) gameObject.SetActive(false);
 		if (ps != null)
 		{
 			ps.Play();
@@ -35,7 +38,7 @@ public class BossVFX : MonoBehaviour
 		float time = 0;
 		while (gameObject.activeSelf)
 		{
-			if (ps.IsAlive() || lifetimeLimit <= time) break;
+			if (!ps.IsAlive() || lifetimeLimit <= time) break;
 			time += 1;
 			yield return lifeYield1s;
 		}
