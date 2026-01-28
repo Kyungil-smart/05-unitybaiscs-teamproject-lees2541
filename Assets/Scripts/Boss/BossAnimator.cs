@@ -1,0 +1,36 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+public class BossAnimator : MonoBehaviour
+{
+	public bool EnableDebugUI = true;
+
+	enum SkillState
+	{
+		Started,
+		Performed,
+		Ended
+	}
+
+	private Dictionary<(BossSkillType, SkillState), int> paramsHashDict = new()
+	{
+		{ (BossSkillType.BasicCast, SkillState.Started), Animator.StringToHash("BasicAttackStarted") }
+	};
+
+	private Animator animator;
+
+	private void Awake()
+	{
+		animator = GetComponent<Animator>();
+	}
+
+	public void OnAttackStarted(BossSkillType skillType) => SetAnimation(skillType, SkillState.Started);
+	public void OnAttackPerformed(BossSkillType skillType) => SetAnimation(skillType, SkillState.Performed);
+	public void OnAttackEnded(BossSkillType skillType) => SetAnimation(skillType, SkillState.Ended);
+
+	private void SetAnimation(BossSkillType skillType, SkillState skillState)
+	{
+		if (!paramsHashDict.TryGetValue((skillType, skillState), out var hash)) return;
+		animator.SetTrigger(hash);
+	}
+}
