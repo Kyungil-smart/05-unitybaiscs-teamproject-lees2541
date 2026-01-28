@@ -48,7 +48,11 @@ namespace UnityChan
         private float coyoteTimer = 0f;
         private const float coyoteTime = 0.10f;       // 바닥에서 살짝 떨어져도 점프 허용(선택이지만 체감 좋아짐)
         private const float groundEpsilon = 0.06f;    // 바닥 판정 여유
-                                                      // --- Ground check by LayerMask (바닥 레이어만 감지) ---
+
+        public enum STATE { FirstP, ThirdP, SideView }
+        public STATE PerspectiveState = STATE.FirstP;
+
+        // --- Ground check by LayerMask (바닥 레이어만 감지) ---
         [Header("Ground Check")]
         [SerializeField] private LayerMask groundLayers; // Inspector에서 Ground 레이어(들)만 선택
         [SerializeField] private float groundRayExtraUp = 0.10f;   // 레이 시작점 여유(머리 위)
@@ -57,6 +61,9 @@ namespace UnityChan
 
         private bool jumpPending = false;       // 점프 애니 시작 ~ 이륙 이벤트까지 대기
         private bool jumpTakeoffEvent = false;  // Animation Event가 켜는 플래그(물리 적용은 FixedUpdate에서)
+
+
+
 
 
 
@@ -118,24 +125,63 @@ namespace UnityChan
             float h = Input.GetAxis("Horizontal");              // 입력의 수평 축을 h로 정의
             float v = Input.GetAxis("Vertical");                // 입력의 수직 축을 v로 정의
             //anim.SetFloat("Speed", v);                          // Animator에 설정된 "Speed" 파라미터에 v 전달
-            float speedParam = (Mathf.Abs(v) > 0.1f) ? v : Mathf.Abs(h);
-            anim.SetFloat("Speed", speedParam);
+            //float speedParam = (Mathf.Abs(v) > 0.1f) ? v : Mathf.Abs(h);
+            //anim.SetFloat("Speed", speedParam);
             anim.SetFloat("Direction", h);                      // Animator에 설정된 "Direction" 파라미터에 h 전달
             anim.speed = animSpeed;                             // Animator 모션 재생 속도를 animSpeed로 설정
             currentBaseState = anim.GetCurrentAnimatorStateInfo(0); // 참조용 State 변수에 Base Layer(0)의 현재 State를 저장
             rb.useGravity = true;                               // 점프 중에는 중력을 끄므로, 그 외에는 중력 영향을 받게 한다
 
 
-            float z = 0f;
-            if (v > 0.1f) z = v * forwardSpeed;
-            else if (v < -0.1f) z = v * backwardSpeed;
+            // --- 이동 벡터 계산 (ThirdP는 카메라 기준 월드 직진) ---
 
-            float x = h * sidewaySpeed;
+            if (PerspectiveState == STATE.ThirdP)
+            {
+                // (1) ThirdP: 애니 Speed는 항상 양수로 -> S 눌러도 뒷걸음 애니 안 나옴
+                float speedParam = Mathf.Max(Mathf.Abs(v), Mathf.Abs(h));
+                anim.SetFloat("Speed", speedParam);
+                anim.SetFloat("Direction", 0f); // 회전은 우리가 직접 하니까 0 고정
 
-            // 로컬 기준 (좌/우, 전/후) 이동 벡터
-            velocity = new Vector3(x, 0f, z);
-            // 월드 방향으로 변환
-            velocity = transform.TransformDirection(velocity);
+                // (2) 월드 좌표 기준 이동 방향 (카메라 무관)
+                Vector3 moveDir = Vector3.right * h + Vector3.forward * v;
+                moveDir.y = 0f; // 안전빵
+
+
+                if (moveDir.sqrMagnitude > 0.0001f)
+                {
+                    moveDir.Normalize();
+
+                    // (3) 이동은 항상 forwardSpeed로 "직진"
+                    velocity = moveDir * forwardSpeed;
+
+                    // (4) 몸을 이동 방향으로 틀기 (S면 180도 돌아서 전진)
+                    Quaternion targetRot = Quaternion.LookRotation(moveDir, Vector3.up);
+                    float t = Mathf.Clamp01(rotateSpeed * Time.fixedDeltaTime);
+                    rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRot, t));
+                }
+                else
+                {
+                    velocity = Vector3.zero;
+                }
+            }
+            else
+            {
+                // ===== 기존 FirstP 로직 유지 =====
+                float speedParam = (Mathf.Abs(v) > 0.1f) ? v : Mathf.Abs(h);
+                anim.SetFloat("Speed", speedParam);
+                anim.SetFloat("Direction", h);
+
+                float z = 0f;
+                if (v > 0.1f) z = v * forwardSpeed;
+                else if (v < -0.1f) z = v * backwardSpeed;
+
+                float x = h * sidewaySpeed;
+
+                velocity = new Vector3(x, 0f, z);
+                velocity = transform.TransformDirection(velocity);
+            }
+
+
 
             // 1) 접지 판정: "올라가는 중"이면 접지로 보지 않음(가짜 접지로 공중 점프되는 것 방지)
             bool grounded = IsGrounded() && rb.velocity.y <= groundedVelYThreshold;
@@ -218,7 +264,7 @@ namespace UnityChan
             else if (currentBaseState.fullPathHash == jumpState)
             {
                 //cameraObject.SendMessage("setCameraPositionJumpView");  // 점프용 카메라로 변경
-                                                                        // State가 트랜지션 중이 아닐 때
+                // State가 트랜지션 중이 아닐 때
                 if (!anim.IsInTransition(0))
                 {
 
