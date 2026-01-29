@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 75cc1375d20587d45a47598a9407ed3e
+timeCreated: 1559923513
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 148410
+  packageName: RPG Poly Pack - Lite
+  packageVersion: 1.0
+  assetPath: Assets/RPGPP_LT/Prefabs/Props/Misc/rpgpp_lt_wagon_01.prefab
+  uploadId: 316754
