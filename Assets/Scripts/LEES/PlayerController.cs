@@ -81,6 +81,9 @@ namespace UnityChan
         static int idleState = Animator.StringToHash("Base Layer.Idle");
         static int restState = Animator.StringToHash("Base Layer.Rest");
 
+        // PlayerInteractor 참조
+        private PlayerInteractor interactor;
+
         // 초기화
         void Start()
         {
@@ -94,6 +97,7 @@ namespace UnityChan
             // CapsuleCollider의 Height/Center 초기값 저장
             orgColHight = col.height;
             orgVectColCenter = col.center;
+            interactor = GetComponent<PlayerInteractor>();
         }
 
         void Update()
@@ -103,6 +107,13 @@ namespace UnityChan
             {
                 jumpRequest = true;
                 jumpRequestTimer = jumpBufferTime;
+            }
+
+            // 상호작용 입력
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                if (interactor != null && interactor.CanInteract)
+                    interactor.TryInteract();
             }
 
             // 버퍼 시간 감소
