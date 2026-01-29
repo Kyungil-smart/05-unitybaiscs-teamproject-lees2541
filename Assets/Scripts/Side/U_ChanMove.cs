@@ -59,7 +59,7 @@ public class U_ChanMove : MonoBehaviour
             isJump = false;
         }
 
-        else if (collision.gameObject.CompareTag("AddJumpItem"))
+        else if (collision.gameObject.CompareTag("AddJumpChance"))
         {
             isJump = false;
 
