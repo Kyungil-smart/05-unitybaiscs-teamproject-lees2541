@@ -1,31 +1,34 @@
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class BossBasicSkillProjectile : MonoBehaviour
+namespace Boss.Skills
 {
-	private Rigidbody rigidbody;
-	private Transform model;
-	private Vector3 rotDir;
-
-	private void Awake()
+	public class BossBasicSkillProjectile : MonoBehaviour
 	{
-		rigidbody = GetComponent<Rigidbody>();
-		model = transform.GetChild(0);
-		rotDir = new Vector3(Random.Range(-1, 1), Random.Range(-1, 1), Random.Range(-1, 1)) * 60;
-	}
+		private Rigidbody rigidbody;
+		private Transform model;
+		private Vector3 rotDir;
 
-	private void Update()
-	{
-		model.Rotate(rotDir * Time.deltaTime);
-	}
+		private void Awake()
+		{
+			rigidbody = GetComponent<Rigidbody>();
+			model = transform.GetChild(0);
+			rotDir = new Vector3(Random.Range(-1, 1), Random.Range(-1, 1), Random.Range(-1, 1)) * 60;
+		}
 
-	public void Activate()
-	{
-		rigidbody.useGravity = true;
-	}
+		private void Update()
+		{
+			model.Rotate(rotDir * Time.deltaTime);
+		}
 
-	private void OnCollisionEnter(Collision other)
-	{
-		gameObject.SetActive(false);
+		public void Activate()
+		{
+			rigidbody.useGravity = true;
+		}
+
+		private void OnCollisionEnter(Collision other)
+		{
+			gameObject.SetActive(false);
+		}
 	}
 }

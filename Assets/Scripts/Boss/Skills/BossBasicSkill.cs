@@ -3,48 +3,51 @@ using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class BossBasicSkill : MonoBehaviour, IBossSkill
+namespace Boss.Skills
 {
-	[SerializeField] private GameObject projectilePrefab;
-
-	private static readonly YieldInstruction startYield = new WaitForSeconds(4f);
-	private static readonly YieldInstruction performYield = new WaitForSeconds(1f);
-
-	private List<BossBasicSkillProjectile> projectiles;
-
-
-	void Init()
+	public class BossBasicSkill : MonoBehaviour, IBossSkill
 	{
-		projectiles = new List<BossBasicSkillProjectile>();
-	}
+		[SerializeField] private GameObject projectilePrefab;
 
-	public IEnumerator StartAttack()
-	{
-		Init();
-		for (int i = 0; i < 10; i++)
+		private static readonly YieldInstruction startYield = new WaitForSeconds(4f);
+		private static readonly YieldInstruction performYield = new WaitForSeconds(1f);
+
+		private List<BossBasicSkillProjectile> projectiles;
+
+
+		void Init()
 		{
-			var pos = new Vector3(Random.Range(-10, 10), 5, Random.Range(-10, 10));
-			projectiles.Add(Instantiate(projectilePrefab, pos, Quaternion.identity)
-				.GetComponent<BossBasicSkillProjectile>());
+			projectiles = new List<BossBasicSkillProjectile>();
 		}
 
-		yield return startYield;
-	}
-
-	public IEnumerator PerformAttack()
-	{
-		foreach (var p in projectiles)
+		public IEnumerator StartAttack()
 		{
-			p.Activate();
+			Init();
+			for (int i = 0; i < 10; i++)
+			{
+				var pos = new Vector3(Random.Range(-10, 10), 5, Random.Range(-10, 10));
+				projectiles.Add(Instantiate(projectilePrefab, pos, Quaternion.identity)
+					.GetComponent<BossBasicSkillProjectile>());
+			}
+
+			yield return startYield;
 		}
 
-		yield return performYield;
-	}
+		public IEnumerator PerformAttack()
+		{
+			foreach (var p in projectiles)
+			{
+				p.Activate();
+			}
 
-	public IEnumerator EndAttack()
-	{
-		projectiles.ForEach(p => Destroy(p.gameObject));
-		projectiles.Clear();
-		yield return null;
+			yield return performYield;
+		}
+
+		public IEnumerator EndAttack()
+		{
+			projectiles.ForEach(p => Destroy(p.gameObject));
+			projectiles.Clear();
+			yield return null;
+		}
 	}
 }
