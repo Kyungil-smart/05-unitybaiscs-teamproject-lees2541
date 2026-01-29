@@ -1,12 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace Boss.Skills
 {
+	/// <summary>
+	/// 투사체를 생성한 뒤 대기시간 이후 추락시킵니다. 투사체에 부딪힌 경우 플레이어는 피해를 입습니다.
+	/// </summary>
 	public class BossBasicSkill : MonoBehaviour, IBossSkill
 	{
+		public BossSkillType Type => BossSkillType.BasicCast;
+
 		[SerializeField] private int projectileCount = 10;
 		[SerializeField] private GameObject projectilePrefab;
 
@@ -14,30 +18,35 @@ namespace Boss.Skills
 		private static readonly YieldInstruction performYield = new WaitForSeconds(1f);
 
 		private Stack<BossBasicSkillProjectile> projectiles = new();
-		private bool isCasting;
+		private Vector3 minPos;
+		private Vector3 maxPos;
 
-		void Init()
+		private void Start()
 		{
-			while (projectiles.Count > 0)
+			minPos = BossSceneManager.Instance.MinCoordinate;
+			maxPos = BossSceneManager.Instance.MaxCoordinate;
+
+			projectiles.Clear();
+			Transform root = new GameObject($"@{nameof(BossBasicSkill)}").transform;
+			root.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+
+			for (int i = 0; i < projectileCount; i++)
 			{
-				Destroy(projectiles.Pop().gameObject);
+				var obj = Instantiate(projectilePrefab, root.transform);
+				obj.SetActive(false);
+				projectiles.Push(obj.GetComponent<BossBasicSkillProjectile>());
 			}
 		}
 
+
 		public IEnumerator StartAttack()
 		{
-			for (int i = 0; i < projectileCount; i++)
+			foreach (var projectile in projectiles)
 			{
-				var pos = new Vector3(Random.Range(-10, 10), 5, Random.Range(-10, 10));
-				var go = Instantiate(projectilePrefab, pos, Quaternion.identity);
-				if (go.TryGetComponent(out BossBasicSkillProjectile proj))
-					projectiles.Push(proj);
-				else
-				{
-					Debug.LogWarning(
-						$"{nameof(BossBasicSkillProjectile)} component is not attached on {projectilePrefab}");
-					break;
-				}
+				Vector3 randomPos = minPos.RandomRange(maxPos);
+				randomPos.y = 4f;
+				projectile.transform.SetPositionAndRotation(randomPos, Quaternion.identity);
+				projectile.gameObject.SetActive(true);
 			}
 
 			yield return startYield;
@@ -55,9 +64,11 @@ namespace Boss.Skills
 
 		public IEnumerator EndAttack()
 		{
-			while (projectiles.Count > 0)
-				Destroy(projectiles.Pop().gameObject);
-			projectiles.Clear();
+			foreach (var p in projectiles)
+			{
+				p.gameObject.SetActive(false);
+			}
+
 			yield return null;
 		}
 	}

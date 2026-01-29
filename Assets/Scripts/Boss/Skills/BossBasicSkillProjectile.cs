@@ -1,3 +1,4 @@
+using System;
 using Boss.VFX;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -14,7 +15,12 @@ namespace Boss.Skills
 		{
 			rigidbody = GetComponent<Rigidbody>();
 			model = transform.GetChild(0);
+		}
+
+		private void OnEnable()
+		{
 			rotDir = new Vector3(Random.Range(-1, 1), Random.Range(-1, 1), Random.Range(-1, 1)) * 60;
+			rigidbody.useGravity = false;
 		}
 
 		private void Update()

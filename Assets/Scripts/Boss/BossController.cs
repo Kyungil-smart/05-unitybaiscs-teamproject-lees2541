@@ -26,7 +26,11 @@ namespace Boss
 
 		private void RegisterSkillComponents()
 		{
-			_skills.Add(BossSkillType.BasicCast, GetComponent<BossBasicSkill>());
+			var components = GetComponents<IBossSkill>();
+			foreach (var component in components)
+			{
+				_skills.Add(component.Type, component);
+			}
 		}
 
 		public void CastSkill(BossSkillType skillType)

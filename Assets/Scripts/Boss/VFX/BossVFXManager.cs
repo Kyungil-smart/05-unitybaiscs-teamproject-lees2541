@@ -12,6 +12,7 @@ namespace Boss.VFX
 		{
 			public VFXType vfxType;
 			public GameObject prefab;
+			public int initCount;
 		}
 
 		public static BossVFXManager Instance { get; private set; }
@@ -25,7 +26,6 @@ namespace Boss.VFX
 		{
 			Instance = this;
 			Init();
-			
 		}
 
 		private void Init()
@@ -44,13 +44,13 @@ namespace Boss.VFX
 				pools.Add(config.vfxType, pool);
 
 				// 미리 로딩
-				GameObject[] prewarmArray = new GameObject[6];
-				for (int i = 0; i < 6; i++)
+				GameObject[] prewarmArray = new GameObject[config.initCount];
+				for (int i = 0; i < config.initCount; i++)
 				{
 					prewarmArray[i] = pool.Get();
 				}
 
-				for (int i = 0; i < 6; i++)
+				for (int i = 0; i < config.initCount; i++)
 				{
 					pool.Release(prewarmArray[i]);
 				}

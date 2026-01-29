@@ -2,6 +2,8 @@ namespace Boss.Skills
 {
 	public enum BossSkillType
 	{
-		BasicCast
+		BasicCast,
+		HorizontalLaser,
+		VerticalLaser
 	}
 }

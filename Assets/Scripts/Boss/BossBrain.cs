@@ -29,9 +29,20 @@ namespace Boss
 		private void OnGUI()
 		{
 			if (!enableDebug) return;
-			if (GUILayout.Button("Attack(Basic)"))
+			if (GUILayout.Button("Cast Basic"))
 			{
 				controller.CastSkill(BossSkillType.BasicCast);
+			}
+
+			if (GUILayout.Button("Cast HorizontalLaser"))
+			{
+				controller.CastSkill(BossSkillType.HorizontalLaser);
+			}
+
+
+			if (GUILayout.Button("Cast VerticalLaser"))
+			{
+				controller.CastSkill(BossSkillType.VerticalLaser);
 			}
 		}
 	}
