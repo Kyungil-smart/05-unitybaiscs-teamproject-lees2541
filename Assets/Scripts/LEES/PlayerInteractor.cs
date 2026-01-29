@@ -1,56 +1,35 @@
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace UnityChan
 {
-    // 상호작용 대상(문, 아이템, 버튼 등)이 구현해야 하는 인터페이스
-    // (MonoBehaviour가 이 인터페이스를 구현하면 아래 TryGetComponent(Type)로 잡힙니다)
-    public interface IInteract
-    {
-        void Interact();
-    }
-
+    [DisallowMultipleComponent]
     public class PlayerInteractor : MonoBehaviour
     {
-        [Header("Refs")]
-        [SerializeField] private PlayerController playerController;   // 같은 오브젝트의 PlayerController
-        [SerializeField] private Transform firstPersonRayOrigin;      // 1인칭 레이 시작점(보통 FPS 카메라)
+        [Header("First Person (Look Ray)")]
+        [SerializeField] private Transform rayOrigin;     // 비워두면 Camera.main 사용
+        [SerializeField] private float rayDistance = 3f;
 
-        [Header("Layer / Query")]
-        [SerializeField] private LayerMask interactableLayers = ~0;   // 상호작용 오브젝트 레이어만 선택 권장
-        [SerializeField] private QueryTriggerInteraction triggerInteraction = QueryTriggerInteraction.Collide;
+        [Header("Third Person / Quarter View (Proximity)")]
+        [SerializeField] private float proximityRadius = 2f;
+        [SerializeField] private float proximityScanInterval = 0.05f; // 0.05~0.1 권장
+        [SerializeField] private bool includeTriggers = true;
 
-        [Header("First Person (ray)")]
-        [SerializeField] private float firstPersonRange = 3.0f;
+        public bool CanInteract => _currentInteract != null;
+        public IInteract Current => _currentInteract;
+        public Component CurrentComponent => _currentComponent; // (대부분 MonoBehaviour)
 
-        [Header("Third Person (proximity)")]
-        [SerializeField] private float thirdPersonRadius = 1.5f;
-        [SerializeField] private Vector3 thirdPersonCenterOffset = new Vector3(0f, 1.0f, 0f); // 가슴 높이쯤
-        [SerializeField] private bool requireLineOfSightInThirdP = false;
+        private PlayerController _controller;
+        private Collider[] _selfColliders;
+        private readonly Collider[] _overlapBuffer = new Collider[32];
 
-        [Header("UI Hook (optional)")]
-        public UnityEvent<bool> OnCanInteractChanged; // F키 프롬프트(활성/비활성) 연결용
-
-        private IInteract _current;
+        private float _scanTimer;
+        private IInteract _currentInteract;
         private Component _currentComponent;
-        private bool _lastCanInteract;
-
-        public bool CanInteract => _current != null;
-        public Component CurrentComponent => _currentComponent;
 
         private void Awake()
         {
-            if (!playerController)
-                playerController = GetComponent<PlayerController>();
-
-            if (!firstPersonRayOrigin)
-            {
-                // 기본값: MainCamera
-                var cam = Camera.main;
-                if (cam) firstPersonRayOrigin = cam.transform;
-            }
-
-            _lastCanInteract = false;
+            _controller = GetComponent<PlayerController>();
+            _selfColliders = GetComponentsInChildren<Collider>();
         }
 
         private void Update()
@@ -58,155 +37,140 @@ namespace UnityChan
             UpdateTarget();
         }
 
+        /// <summary>PlayerController에서 F키 눌렀을 때 호출</summary>
         public bool TryInteract()
         {
-            if (_current == null) return false;
-
-            _current.Interact();
-
-            // 상호작용 후 오브젝트가 사라지거나 상태가 바뀔 수 있으니 재탐색
-            UpdateTarget();
+            if (_currentInteract == null) return false;
+            _currentInteract.Interact(); // IInteract.cs의 기본 구현(혹은 구현체의 오버라이드) 호출 :contentReference[oaicite:1]{index=1}
             return true;
         }
 
         private void UpdateTarget()
         {
-            IInteract found = null;
-            Component foundComp = null;
-
-            if (playerController != null && playerController.PerspectiveState == PlayerController.STATE.FirstP)
+            // 1인칭: 바라보는 대상 레이캐스트
+            if (_controller != null && _controller.PerspectiveState == PlayerController.STATE.FirstP)
             {
-                found = FindByRaycast(out foundComp);
-            }
-            else if (playerController != null && playerController.PerspectiveState == PlayerController.STATE.ThirdP)
-            {
-                found = FindByProximity(out foundComp);
-            }
-            else
-            {
-                // SideView 등: 기본은 근접으로 처리(원하면 레이캐스트로 바꿔도 됨)
-                found = FindByProximity(out foundComp);
+                UpdateByRaycast();
+                return;
             }
 
-            SetCurrent(found, foundComp);
-        }
-
-        private void SetCurrent(IInteract found, Component foundComp)
-        {
-            _current = found;
-            _currentComponent = foundComp;
-
-            bool nowCan = (_current != null);
-            if (nowCan != _lastCanInteract)
+            // 쿼터뷰/사이드뷰: 근접(반경) 검사
+            _scanTimer -= Time.deltaTime;
+            if (_scanTimer <= 0f)
             {
-                _lastCanInteract = nowCan;
-                OnCanInteractChanged?.Invoke(nowCan);
+                _scanTimer = proximityScanInterval;
+                UpdateByProximity();
             }
         }
 
-        private IInteract FindByRaycast(out Component foundComp)
+        private Transform GetRayOrigin()
         {
-            foundComp = null;
-            if (!firstPersonRayOrigin) return null;
+            if (rayOrigin != null) return rayOrigin;
+            var cam = Camera.main;
+            return cam != null ? cam.transform : transform;
+        }
 
-            Ray ray = new Ray(firstPersonRayOrigin.position, firstPersonRayOrigin.forward);
+        private void UpdateByRaycast()
+        {
+            Transform origin = GetRayOrigin();
+            Ray ray = new Ray(origin.position, origin.forward);
 
-            if (Physics.Raycast(ray, out RaycastHit hit, firstPersonRange, interactableLayers, triggerInteraction))
+            if (Physics.Raycast(ray, out RaycastHit hit, rayDistance, ~0,
+                    includeTriggers ? QueryTriggerInteraction.Collide : QueryTriggerInteraction.Ignore))
             {
-                if (TryGetInteract(hit.collider, out IInteract interact, out Component comp))
+                if (TryGetInteract(hit.collider, out var interact, out var comp))
                 {
-                    foundComp = comp;
-                    return interact;
+                    SetCurrent(interact, comp);
+                    return;
                 }
             }
 
-            return null;
+            ClearCurrent();
         }
 
-        private IInteract FindByProximity(out Component foundComp)
+        private void UpdateByProximity()
         {
-            foundComp = null;
+            var qti = includeTriggers ? QueryTriggerInteraction.Collide : QueryTriggerInteraction.Ignore;
 
-            Vector3 center = transform.position + thirdPersonCenterOffset;
-            Collider[] cols = Physics.OverlapSphere(center, thirdPersonRadius, interactableLayers, triggerInteraction);
+            int count = Physics.OverlapSphereNonAlloc(transform.position, proximityRadius, _overlapBuffer, ~0, qti);
 
-            float bestSqr = float.MaxValue;
             IInteract best = null;
             Component bestComp = null;
+            float bestD2 = float.PositiveInfinity;
 
-            foreach (var col in cols)
+            for (int i = 0; i < count; i++)
             {
-                if (!TryGetInteract(col, out IInteract interact, out Component comp))
-                    continue;
+                var c = _overlapBuffer[i];
+                if (c == null) continue;
+                if (IsSelfCollider(c)) continue;
 
-                if (requireLineOfSightInThirdP)
-                {
-                    Vector3 targetPos = col.bounds.center;
-                    Vector3 dir = (targetPos - center);
-                    float dist = dir.magnitude;
-                    if (dist > 0.0001f)
-                    {
-                        dir /= dist;
-                        if (Physics.Raycast(center, dir, out RaycastHit blockHit, dist, ~0, triggerInteraction))
-                        {
-                            // 중간에 다른 게 막으면 스킵(자기 자신 맞으면 OK)
-                            if (blockHit.collider != col) continue;
-                        }
-                    }
-                }
+                if (!TryGetInteract(c, out var interact, out var comp)) continue;
 
-                float sqr = (col.bounds.center - transform.position).sqrMagnitude;
-                if (sqr < bestSqr)
+                Vector3 closest = c.ClosestPoint(transform.position);
+                float d2 = (closest - transform.position).sqrMagnitude;
+
+                if (d2 < bestD2)
                 {
-                    bestSqr = sqr;
+                    bestD2 = d2;
                     best = interact;
                     bestComp = comp;
                 }
             }
 
-            foundComp = bestComp;
-            return best;
+            if (best != null) SetCurrent(best, bestComp);
+            else ClearCurrent();
         }
 
-        // 지시사항: Raycast/Overlap 후 TryGetComponent로 IInteract 가능한 컴포넌트 있는지 확인
-        private static bool TryGetInteract(Collider col, out IInteract interact, out Component foundComp)
+        private bool TryGetInteract(Collider col, out IInteract interact, out Component comp)
         {
             interact = null;
-            foundComp = null;
-            if (!col) return false;
+            comp = null;
+            if (col == null) return false;
 
-            // 1) collider 자신에서 찾기
-            if (col.TryGetComponent(typeof(IInteract), out Component comp) && comp is IInteract i1)
-            {
-                foundComp = comp;
-                interact = i1;
-                return true;
-            }
+            // 인터페이스는 TryGetComponent<T>로 바로 못 받는 경우가 많아서(GetComponent가 안전),
+            // 콜라이더(또는 부모)에 붙은 IInteract 구현 MonoBehaviour를 찾습니다.
+            interact = col.GetComponentInParent<IInteract>();
+            if (interact == null) return false;
 
-            // 2) 부모(루트)에 IInteract가 달린 경우까지 커버
-            comp = col.GetComponentInParent(typeof(IInteract));
-            if (comp != null && comp is IInteract i2)
-            {
-                foundComp = comp;
-                interact = i2;
-                return true;
-            }
+            comp = interact as Component; // 구현체가 MonoBehaviour일 때만 유효
+            return comp != null;
+        }
 
+        private bool IsSelfCollider(Collider other)
+        {
+            for (int i = 0; i < _selfColliders.Length; i++)
+                if (_selfColliders[i] == other) return true;
             return false;
+        }
+
+        private void SetCurrent(IInteract interact, Component comp)
+        {
+            if (_currentComponent == comp && _currentInteract == interact) return;
+
+            // (선택) 오브젝트 UI 쪽에서 쓰고 싶으면 아래 메시지 이름으로 구현해두면 됨
+            if (_currentComponent != null)
+                _currentComponent.gameObject.SendMessage("OnInteractTargetExit", this, SendMessageOptions.DontRequireReceiver);
+
+            _currentInteract = interact;
+            _currentComponent = comp;
+
+            if (_currentComponent != null)
+                _currentComponent.gameObject.SendMessage("OnInteractTargetEnter", this, SendMessageOptions.DontRequireReceiver);
+        }
+
+        private void ClearCurrent()
+        {
+            if (_currentComponent != null)
+                _currentComponent.gameObject.SendMessage("OnInteractTargetExit", this, SendMessageOptions.DontRequireReceiver);
+
+            _currentInteract = null;
+            _currentComponent = null;
         }
 
 #if UNITY_EDITOR
         private void OnDrawGizmosSelected()
         {
-            Gizmos.color = Color.yellow;
-            Vector3 center = transform.position + thirdPersonCenterOffset;
-            Gizmos.DrawWireSphere(center, thirdPersonRadius);
-
-            if (firstPersonRayOrigin)
-            {
-                Gizmos.color = Color.cyan;
-                Gizmos.DrawRay(firstPersonRayOrigin.position, firstPersonRayOrigin.forward * firstPersonRange);
-            }
+            Gizmos.DrawWireSphere(transform.position, proximityRadius);
         }
 #endif
     }
