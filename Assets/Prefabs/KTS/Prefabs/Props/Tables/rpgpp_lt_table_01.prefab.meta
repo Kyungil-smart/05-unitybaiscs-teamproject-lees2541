@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: b9857df0f15358c4b85cdfde84b47974
+timeCreated: 1559923443
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 148410
+  packageName: RPG Poly Pack - Lite
+  packageVersion: 1.0
+  assetPath: Assets/RPGPP_LT/Prefabs/Props/Furniture/Tables/rpgpp_lt_table_01.prefab
+  uploadId: 316754

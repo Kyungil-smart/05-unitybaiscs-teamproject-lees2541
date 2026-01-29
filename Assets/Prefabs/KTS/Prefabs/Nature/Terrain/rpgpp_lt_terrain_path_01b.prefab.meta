@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 2b7b6e55b0d47fe4ea2138b8b2a8fdf0
+timeCreated: 1560255992
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 148410
+  packageName: RPG Poly Pack - Lite
+  packageVersion: 1.0
+  assetPath: Assets/RPGPP_LT/Prefabs/Nature/Terrain/rpgpp_lt_terrain_path_01b.prefab
+  uploadId: 316754
