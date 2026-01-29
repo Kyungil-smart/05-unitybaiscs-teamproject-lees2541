@@ -1,60 +1,65 @@
-using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Pool;
 
-public class BossVFX : MonoBehaviour
+namespace Boss.VFX
 {
-	private static YieldInstruction lifeYield1s = new WaitForSeconds(1f);
-
-	private IObjectPool<GameObject> pool;
-	private VFXType vfxType;
-	private ParticleSystem ps;
-	private Coroutine lifeCoroutine;
-
-	private float lifetimeLimit = 8f;
-
-	public void Initialize(VFXType type, IObjectPool<GameObject> pool)
+	public class BossVFX : MonoBehaviour
 	{
-		vfxType = type;
-		this.pool = pool;
-		ps = GetComponent<ParticleSystem>();
-	}
+		private static YieldInstruction lifeYield1s = new WaitForSeconds(1f);
 
-	void OnEnable()
-	{
-		if (ps != null)
+		private IObjectPool<GameObject> pool;
+		private VFXType vfxType;
+		private ParticleSystem ps;
+		private Coroutine lifeCoroutine;
+
+		private bool isInitialized;
+		private float lifetimeLimit = 3f;
+
+		public void Initialize(VFXType type, IObjectPool<GameObject> pool)
 		{
-			ps.Play();
-			lifeCoroutine = StartCoroutine(LifeCoroutine());
-		}
-	}
-
-	private IEnumerator LifeCoroutine()
-	{
-		float time = 0;
-		while (gameObject.activeSelf)
-		{
-			if (ps.IsAlive() || lifetimeLimit <= time) break;
-			time += 1;
-			yield return lifeYield1s;
+			vfxType = type;
+			this.pool = pool;
+			ps = GetComponent<ParticleSystem>();
+			isInitialized = true;
 		}
 
-		lifeCoroutine = null;
-		ReturnToPool();
-	}
-
-	private void OnDisable()
-	{
-		if (lifeCoroutine != null)
+		void OnEnable()
 		{
-			StopCoroutine(lifeCoroutine);
+			if (!isInitialized) gameObject.SetActive(false);
+			if (ps != null)
+			{
+				ps.Play();
+				lifeCoroutine = StartCoroutine(LifeCoroutine());
+			}
+		}
+
+		private IEnumerator LifeCoroutine()
+		{
+			float time = 0;
+			while (gameObject.activeSelf)
+			{
+				if (!ps.IsAlive() || lifetimeLimit <= time) break;
+				time += 1;
+				yield return lifeYield1s;
+			}
+
 			lifeCoroutine = null;
+			ReturnToPool();
 		}
-	}
 
-	private void ReturnToPool()
-	{
-		pool.Release(gameObject);
+		private void OnDisable()
+		{
+			if (lifeCoroutine != null)
+			{
+				StopCoroutine(lifeCoroutine);
+				lifeCoroutine = null;
+			}
+		}
+
+		private void ReturnToPool()
+		{
+			pool.Release(gameObject);
+		}
 	}
 }
