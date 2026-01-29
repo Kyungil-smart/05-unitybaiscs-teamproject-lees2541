@@ -8,6 +8,8 @@ namespace Boss
 {
 	public class BossController : MonoBehaviour
 	{
+		public bool IsCasting { get; private set; }
+
 		public UnityEvent<BossSkillType> AttackStarted;
 		public UnityEvent<BossSkillType> AttackPerformed;
 		public UnityEvent<BossSkillType> AttackEnded;
@@ -29,6 +31,8 @@ namespace Boss
 
 		public void CastSkill(BossSkillType skillType)
 		{
+			if (IsCasting) return;
+
 			if (currentCoroutine != null)
 			{
 				StopCoroutine(currentCoroutine);
@@ -47,6 +51,7 @@ namespace Boss
 
 		private IEnumerator SkillCoroutine()
 		{
+			IsCasting = true;
 			AttackStarted?.Invoke(currentSkillType);
 			yield return currentSkill.StartAttack();
 
@@ -58,6 +63,7 @@ namespace Boss
 
 			currentSkill = null;
 			currentCoroutine = null;
+			IsCasting = false;
 		}
 	}
 }

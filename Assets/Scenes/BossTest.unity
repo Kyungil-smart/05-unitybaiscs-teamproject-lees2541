@@ -946,6 +946,10 @@ PrefabInstance:
       propertyPath: projectilePrefab
       value: 
       objectReference: {fileID: 2255097065876745138, guid: 1ad7d00f23f48984bbd31382cd4478fc, type: 3}
+    - target: {fileID: 8513953894037220491, guid: 6099b6ecbe84bd74cafa86bf0b2b0118, type: 3}
+      propertyPath: enableDebug
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
