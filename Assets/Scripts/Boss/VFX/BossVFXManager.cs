@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
@@ -23,7 +24,12 @@ namespace Boss.VFX
 		private void Awake()
 		{
 			Instance = this;
+			Init();
+			
+		}
 
+		private void Init()
+		{
 			foreach (var config in poolConfigs)
 			{
 				if (config.vfxType == VFXType.None) continue;
@@ -49,6 +55,11 @@ namespace Boss.VFX
 					pool.Release(prewarmArray[i]);
 				}
 			}
+		}
+
+		private void OnDestroy()
+		{
+			Instance = null;
 		}
 
 		private GameObject CreateNewObject(VFXType type)

@@ -1,3 +1,4 @@
+using Boss.VFX;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -28,6 +29,7 @@ namespace Boss.Skills
 
 		private void OnCollisionEnter(Collision other)
 		{
+			BossVFXManager.Instance.Spawn(VFXType.GroundDustExplosion, transform.position, Quaternion.identity);
 			gameObject.SetActive(false);
 		}
 	}
