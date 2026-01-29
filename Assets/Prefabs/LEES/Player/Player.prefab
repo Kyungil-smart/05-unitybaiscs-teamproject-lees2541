@@ -1830,8 +1830,14 @@ MonoBehaviour:
   forwardSpeed: 7
   backwardSpeed: 2
   sidewaySpeed: 5
-  rotateSpeed: 2
+  rotateSpeed: 5
   jumpPower: 3
+  PerspectiveState: 1
+  groundLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  groundRayExtraUp: 0.1
+  groundRayExtraDown: 0.3
 --- !u!1 &100078
 GameObject:
   m_ObjectHideFlags: 0
