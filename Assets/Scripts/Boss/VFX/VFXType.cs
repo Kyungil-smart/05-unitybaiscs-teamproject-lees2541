@@ -1,7 +1,10 @@
-public enum VFXType
+namespace Boss.VFX
 {
-	None,
-	GroundDustExplosion,
-	LevelUp,
-	PaperFold
+	public enum VFXType
+	{
+		None,
+		GroundDustExplosion,
+		HorizontalLineCrack,
+		VerticalLineCrack
+	}
 }

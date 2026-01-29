@@ -1,50 +1,75 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
-public class BossBasicSkill : MonoBehaviour, IBossSkill
+namespace Boss.Skills
 {
-	[SerializeField] private GameObject projectilePrefab;
-
-	private static readonly YieldInstruction startYield = new WaitForSeconds(4f);
-	private static readonly YieldInstruction performYield = new WaitForSeconds(1f);
-
-	private List<BossBasicSkillProjectile> projectiles;
-
-
-	void Init()
+	/// <summary>
+	/// 투사체를 생성한 뒤 대기시간 이후 추락시킵니다. 투사체에 부딪힌 경우 플레이어는 피해를 입습니다.
+	/// </summary>
+	public class BossBasicSkill : MonoBehaviour, IBossSkill
 	{
-		projectiles = new List<BossBasicSkillProjectile>();
-	}
+		public BossSkillType Type => BossSkillType.BasicCast;
 
-	public IEnumerator StartAttack()
-	{
-		Init();
-		for (int i = 0; i < 10; i++)
+		[SerializeField] private int projectileCount = 10;
+		[SerializeField] private GameObject projectilePrefab;
+
+		private static readonly YieldInstruction startYield = new WaitForSeconds(4f);
+		private static readonly YieldInstruction performYield = new WaitForSeconds(1f);
+
+		private Stack<BossBasicSkillProjectile> projectiles = new();
+		private Vector3 minPos;
+		private Vector3 maxPos;
+
+		private void Start()
 		{
-			var pos = new Vector3(Random.Range(-10, 10), 5, Random.Range(-10, 10));
-			projectiles.Add(Instantiate(projectilePrefab, pos, Quaternion.identity)
-				.GetComponent<BossBasicSkillProjectile>());
+			minPos = BossSceneManager.Instance.MinCoordinate;
+			maxPos = BossSceneManager.Instance.MaxCoordinate;
+
+			projectiles.Clear();
+			Transform root = new GameObject($"@{nameof(BossBasicSkill)}").transform;
+			root.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+
+			for (int i = 0; i < projectileCount; i++)
+			{
+				var obj = Instantiate(projectilePrefab, root.transform);
+				obj.SetActive(false);
+				projectiles.Push(obj.GetComponent<BossBasicSkillProjectile>());
+			}
 		}
 
-		yield return startYield;
-	}
 
-	public IEnumerator PerformAttack()
-	{
-		foreach (var p in projectiles)
+		public IEnumerator StartAttack()
 		{
-			p.Activate();
+			foreach (var projectile in projectiles)
+			{
+				Vector3 randomPos = minPos.RandomRange(maxPos);
+				randomPos.y = 4f;
+				projectile.transform.SetPositionAndRotation(randomPos, Quaternion.identity);
+				projectile.gameObject.SetActive(true);
+			}
+
+			yield return startYield;
 		}
 
-		yield return performYield;
-	}
+		public IEnumerator PerformAttack()
+		{
+			foreach (var p in projectiles)
+			{
+				p.Activate();
+			}
 
-	public IEnumerator EndAttack()
-	{
-		projectiles.ForEach(p => Destroy(p.gameObject));
-		projectiles.Clear();
-		yield return null;
+			yield return performYield;
+		}
+
+		public IEnumerator EndAttack()
+		{
+			foreach (var p in projectiles)
+			{
+				p.gameObject.SetActive(false);
+			}
+
+			yield return null;
+		}
 	}
 }

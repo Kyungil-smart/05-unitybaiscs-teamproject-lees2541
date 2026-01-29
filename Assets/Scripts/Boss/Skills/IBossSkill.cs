@@ -1,8 +1,12 @@
 using System.Collections;
 
-public interface IBossSkill
+namespace Boss.Skills
 {
-	public IEnumerator StartAttack();
-	public IEnumerator PerformAttack();
-	public IEnumerator EndAttack();
+	public interface IBossSkill
+	{
+		public BossSkillType Type { get; }
+		public IEnumerator StartAttack();
+		public IEnumerator PerformAttack();
+		public IEnumerator EndAttack();
+	}
 }
