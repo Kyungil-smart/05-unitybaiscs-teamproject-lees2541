@@ -1542,6 +1542,7 @@ GameObject:
   - component: {fileID: 11400112}
   - component: {fileID: 11400114}
   - component: {fileID: 5331215394539080196}
+  - component: {fileID: 1397730764035422779}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1830,8 +1831,31 @@ MonoBehaviour:
   forwardSpeed: 7
   backwardSpeed: 2
   sidewaySpeed: 5
-  rotateSpeed: 2
+  rotateSpeed: 5
   jumpPower: 3
+  PerspectiveState: 1
+  groundLayers:
+    serializedVersion: 2
+    m_Bits: 256
+  groundRayExtraUp: 0.1
+  groundRayExtraDown: 0.3
+--- !u!114 &1397730764035422779
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe27f407e7cd5d44593c77c9fbd47fcc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rayOrigin: {fileID: 0}
+  rayDistance: 3
+  proximityRadius: 2
+  proximityScanInterval: 0.05
+  includeTriggers: 1
 --- !u!1 &100078
 GameObject:
   m_ObjectHideFlags: 0

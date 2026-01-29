@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 5740665149380096929}
   - component: {fileID: 4443496438572485368}
   - component: {fileID: 7627652539778493109}
+  - component: {fileID: 6476648762611061648}
+  - component: {fileID: 2885363761003870315}
   m_Layer: 0
   m_Name: BossPrefab
   m_TagString: Untagged
@@ -70,6 +72,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fb39d2f16b347d6b4fe262983d2b2b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enableDebug: 1
 --- !u!114 &5740665149380096929
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -82,7 +85,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6e9e55df36940e08eeaca76ac6e6149, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  EnableDebugUI: 1
   AttackStarted:
     m_PersistentCalls:
       m_Calls:
@@ -140,7 +142,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dadd932d4e28034ea76b6a52ae4e4fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  EnableDebugUI: 1
 --- !u!114 &7627652539778493109
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -153,7 +154,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2129e658117c475ca3b80131937594aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Projectile: {fileID: 2470989614998477468, guid: 1ad7d00f23f48984bbd31382cd4478fc, type: 3}
+  projectileCount: 10
+  projectilePrefab: {fileID: 2255097065876745138, guid: 1ad7d00f23f48984bbd31382cd4478fc, type: 3}
+--- !u!114 &6476648762611061648
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4621560495879117991}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea4d11c3716d42c6ac68b71e04860fc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  laserCount: 4
+  indicatorPrefab: {fileID: 1797706917035564156, guid: 43cc8753b2e6d8b4e8bd0f7152f7c6f4, type: 3}
+--- !u!114 &2885363761003870315
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4621560495879117991}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c6d56f0004449908bba4872a0313195, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  laserCount: 4
+  indicatorPrefab: {fileID: 1797706917035564156, guid: dabb4f68b90c2144ba1ae68316b60f01, type: 3}
 --- !u!1001 &6974465140676653502
 PrefabInstance:
   m_ObjectHideFlags: 0
