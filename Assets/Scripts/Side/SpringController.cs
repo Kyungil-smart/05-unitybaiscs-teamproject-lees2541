@@ -6,9 +6,6 @@ public class SpringController : MonoBehaviour
 {
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
-        {
-            Destroy(gameObject);
-        }
+        Debug.Log("มกวม!");
     }
 }
