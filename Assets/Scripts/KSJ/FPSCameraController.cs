@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
+public class FPSCameraController : MonoBehaviour
 {
     [SerializeField] private Transform _viewPoint;
     
