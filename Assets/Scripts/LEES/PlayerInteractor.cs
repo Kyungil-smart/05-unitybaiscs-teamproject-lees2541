@@ -2,176 +2,163 @@ using UnityEngine;
 
 namespace UnityChan
 {
-    [DisallowMultipleComponent]
-    public class PlayerInteractor : MonoBehaviour
-    {
-        [Header("First Person (Look Ray)")]
-        [SerializeField] private Transform rayOrigin;     // ºñ¿öµÎ¸é Camera.main »ç¿ë
-        [SerializeField] private float rayDistance = 3f;
+	public class PlayerInteractor : MonoBehaviour
+	{
+		[Header("First Person (Look Ray)")] [SerializeField]
+		private Transform rayOrigin; // ë¹„ì›Œë‘ë©´ Camera.main ì‚¬ìš©
 
-        [Header("Third Person / Quarter View (Proximity)")]
-        [SerializeField] private float proximityRadius = 2f;
-        [SerializeField] private float proximityScanInterval = 0.05f; // 0.05~0.1 ±ÇÀå
-        [SerializeField] private bool includeTriggers = true;
+		[SerializeField] private float rayDistance = 2f;
 
-        public bool CanInteract => _currentInteract != null;
-        public IInteract Current => _currentInteract;
-        public Component CurrentComponent => _currentComponent; // (´ëºÎºÐ MonoBehaviour)
+		[Header("Third Person / Quarter View (Proximity)")] [SerializeField]
+		private float proximityRadius = 3f;
 
-        private PlayerController _controller;
-        private Collider[] _selfColliders;
-        private readonly Collider[] _overlapBuffer = new Collider[32];
+		[SerializeField] private float proximityScanInterval = 0.05f; // 0.05~0.1 ê¶Œìž¥
+		[SerializeField] private bool includeTriggers = true;
 
-        private float _scanTimer;
-        private IInteract _currentInteract;
-        private Component _currentComponent;
+		public IInteract CurrentInteractable
+		{
+			get => currentInteractable;
+			set
+			{
+				currentInteractable?.OnInteractFocusExit();
+				currentInteractable = value;
+				Debug.Log("CurrentInteractable: " + currentInteractable ?? "None");
+				currentInteractable?.OnInteractFocusEnter();
+			}
+		}
 
-        private void Awake()
-        {
-            _controller = GetComponent<PlayerController>();
-            _selfColliders = GetComponentsInChildren<Collider>();
-        }
+		private IInteract currentInteractable;
 
-        private void Update()
-        {
-            UpdateTarget();
-        }
+		private PlayerController controller;
+		private Collider[] selfColliders;
+		private readonly Collider[] overlapBuffer = new Collider[32];
 
-        /// <summary>PlayerController¿¡¼­ FÅ° ´­·¶À» ¶§ È£Ãâ</summary>
-        public bool TryInteract()
-        {
-            if (_currentInteract == null) return false;
-            _currentInteract.Interact(); // IInteract.csÀÇ ±âº» ±¸Çö(È¤Àº ±¸ÇöÃ¼ÀÇ ¿À¹ö¶óÀÌµå) È£Ãâ :contentReference[oaicite:1]{index=1}
-            return true;
-        }
+		private float scanTimer;
 
-        private void UpdateTarget()
-        {
-            // 1ÀÎÄª: ¹Ù¶óº¸´Â ´ë»ó ·¹ÀÌÄ³½ºÆ®
-            if (_controller != null && _controller.PerspectiveState == PlayerController.STATE.FirstP)
-            {
-                UpdateByRaycast();
-                return;
-            }
+		private void Awake()
+		{
+			controller = GetComponent<PlayerController>();
+			selfColliders = GetComponentsInChildren<Collider>();
+		}
 
-            // ÄõÅÍºä/»çÀÌµåºä: ±ÙÁ¢(¹Ý°æ) °Ë»ç
-            _scanTimer -= Time.deltaTime;
-            if (_scanTimer <= 0f)
-            {
-                _scanTimer = proximityScanInterval;
-                UpdateByProximity();
-            }
-        }
+		private void Update()
+		{
+			// UpdateTarget(); REFACTOR: í”Œë ˆì´ì–´ ì „ë°© ê¸°ì¤€ìœ¼ë¡œë§Œ Interact ì‹œë„í•˜ê²Œ êµ¬í˜„í–ˆìŠµë‹ˆë‹¤.
+			TryUpdateInteractable();
 
-        private Transform GetRayOrigin()
-        {
-            if (rayOrigin != null) return rayOrigin;
-            var cam = Camera.main;
-            return cam != null ? cam.transform : transform;
-        }
+			if (Input.GetKeyDown(KeyCode.F))
+			{
+				CurrentInteractable.Interact();
+			}
+		}
 
-        private void UpdateByRaycast()
-        {
-            Transform origin = GetRayOrigin();
-            Ray ray = new Ray(origin.position, origin.forward);
+		private void TryUpdateInteractable()
+		{
+			Ray ray = new Ray(transform.position + Vector3.up * 1.3f, transform.forward);
 
-            if (Physics.Raycast(ray, out RaycastHit hit, rayDistance, ~0,
-                    includeTriggers ? QueryTriggerInteraction.Collide : QueryTriggerInteraction.Ignore))
-            {
-                if (TryGetInteract(hit.collider, out var interact, out var comp))
-                {
-                    SetCurrent(interact, comp);
-                    return;
-                }
-            }
+			if (Physics.Raycast(ray, out RaycastHit hit, rayDistance))
+			{
+				if (hit.collider.gameObject.TryGetComponent(out IInteract interact) && interact != CurrentInteractable)
+					CurrentInteractable = interact;
+			}
+			else
+			{
+				if (CurrentInteractable != null)
+					CurrentInteractable = null;
+			}
+		}
 
-            ClearCurrent();
-        }
+		private void UpdateTarget()
+		{
+			// 1ì¸ì¹­: ë°”ë¼ë³´ëŠ” ëŒ€ìƒ ë ˆì´ìºìŠ¤íŠ¸
+			if (controller != null && controller.PerspectiveState == PlayerController.MovementSpace.Camera)
+			{
+				UpdateByRaycast();
+				return;
+			}
 
-        private void UpdateByProximity()
-        {
-            var qti = includeTriggers ? QueryTriggerInteraction.Collide : QueryTriggerInteraction.Ignore;
+			// ì¿¼í„°ë·°/ì‚¬ì´ë“œë·°: ê·¼ì ‘(ë°˜ê²½) ê²€ì‚¬
+			scanTimer -= Time.deltaTime;
+			if (scanTimer <= 0f)
+			{
+				scanTimer = proximityScanInterval;
+				UpdateByProximity();
+			}
+		}
 
-            int count = Physics.OverlapSphereNonAlloc(transform.position, proximityRadius, _overlapBuffer, ~0, qti);
+		private Transform GetRayOrigin()
+		{
+			if (rayOrigin != null) return rayOrigin;
+			var cam = Camera.main;
+			return cam != null ? cam.transform : transform;
+		}
 
-            IInteract best = null;
-            Component bestComp = null;
-            float bestD2 = float.PositiveInfinity;
+		private void UpdateByRaycast()
+		{
+			Transform origin = GetRayOrigin();
+			Ray ray = new Ray(origin.position, origin.forward);
 
-            for (int i = 0; i < count; i++)
-            {
-                var c = _overlapBuffer[i];
-                if (c == null) continue;
-                if (IsSelfCollider(c)) continue;
+			if (Physics.Raycast(ray, out RaycastHit hit, rayDistance, ~0,
+				    includeTriggers ? QueryTriggerInteraction.Collide : QueryTriggerInteraction.Ignore))
+			{
+				if (hit.collider.gameObject.TryGetComponent(out IInteract interact))
+				{
+					CurrentInteractable = interact;
+					return;
+				}
+			}
 
-                if (!TryGetInteract(c, out var interact, out var comp)) continue;
+			CurrentInteractable = null;
+		}
 
-                Vector3 closest = c.ClosestPoint(transform.position);
-                float d2 = (closest - transform.position).sqrMagnitude;
+		private void UpdateByProximity()
+		{
+			var qti = includeTriggers ? QueryTriggerInteraction.Collide : QueryTriggerInteraction.Ignore;
 
-                if (d2 < bestD2)
-                {
-                    bestD2 = d2;
-                    best = interact;
-                    bestComp = comp;
-                }
-            }
+			int count = Physics.OverlapSphereNonAlloc(transform.position, proximityRadius, overlapBuffer, ~0, qti);
 
-            if (best != null) SetCurrent(best, bestComp);
-            else ClearCurrent();
-        }
+			IInteract best = null;
+			float bestD2 = float.PositiveInfinity;
 
-        private bool TryGetInteract(Collider col, out IInteract interact, out Component comp)
-        {
-            interact = null;
-            comp = null;
-            if (col == null) return false;
+			for (int i = 0; i < count; i++)
+			{
+				var c = overlapBuffer[i];
+				if (c == null) continue;
+				if (IsSelfCollider(c)) continue;
 
-            // ÀÎÅÍÆäÀÌ½º´Â TryGetComponent<T>·Î ¹Ù·Î ¸ø ¹Þ´Â °æ¿ì°¡ ¸¹¾Æ¼­(GetComponent°¡ ¾ÈÀü),
-            // ÄÝ¶óÀÌ´õ(¶Ç´Â ºÎ¸ð)¿¡ ºÙÀº IInteract ±¸Çö MonoBehaviour¸¦ Ã£½À´Ï´Ù.
-            interact = col.GetComponentInParent<IInteract>();
-            if (interact == null) return false;
+				if (!c.gameObject.TryGetComponent(out IInteract interact)) continue;
 
-            comp = interact as Component; // ±¸ÇöÃ¼°¡ MonoBehaviourÀÏ ¶§¸¸ À¯È¿
-            return comp != null;
-        }
+				Vector3 closest = c.ClosestPoint(transform.position);
+				float d2 = (closest - transform.position).sqrMagnitude;
 
-        private bool IsSelfCollider(Collider other)
-        {
-            for (int i = 0; i < _selfColliders.Length; i++)
-                if (_selfColliders[i] == other) return true;
-            return false;
-        }
+				if (d2 < bestD2)
+				{
+					bestD2 = d2;
+					best = interact;
+				}
+			}
 
-        private void SetCurrent(IInteract interact, Component comp)
-        {
-            if (_currentComponent == comp && _currentInteract == interact) return;
+			CurrentInteractable = best;
+		}
 
-            // (¼±ÅÃ) ¿ÀºêÁ§Æ® UI ÂÊ¿¡¼­ ¾²°í ½ÍÀ¸¸é ¾Æ·¡ ¸Þ½ÃÁö ÀÌ¸§À¸·Î ±¸ÇöÇØµÎ¸é µÊ
-            if (_currentComponent != null)
-                _currentComponent.gameObject.SendMessage("OnInteractTargetExit", this, SendMessageOptions.DontRequireReceiver);
+		private bool TryGetInteract(Collider col, out IInteract interact)
+		{
+			return col.gameObject.TryGetComponent(out interact);
+		}
 
-            _currentInteract = interact;
-            _currentComponent = comp;
+		private bool IsSelfCollider(Collider other)
+		{
+			for (int i = 0; i < selfColliders.Length; i++)
+				if (selfColliders[i] == other)
+					return true;
+			return false;
+		}
 
-            if (_currentComponent != null)
-                _currentComponent.gameObject.SendMessage("OnInteractTargetEnter", this, SendMessageOptions.DontRequireReceiver);
-        }
-
-        private void ClearCurrent()
-        {
-            if (_currentComponent != null)
-                _currentComponent.gameObject.SendMessage("OnInteractTargetExit", this, SendMessageOptions.DontRequireReceiver);
-
-            _currentInteract = null;
-            _currentComponent = null;
-        }
-
-#if UNITY_EDITOR
-        private void OnDrawGizmosSelected()
-        {
-            Gizmos.DrawWireSphere(transform.position, proximityRadius);
-        }
-#endif
-    }
+		private void OnDrawGizmosSelected()
+		{
+			Gizmos.color = Color.red;
+			Gizmos.DrawRay(transform.position + Vector3.up * 1.3f, transform.forward * rayDistance);
+			// Gizmos.DrawWireSphere(transform.position, proximityRadius);
+		}
+	}
 }
