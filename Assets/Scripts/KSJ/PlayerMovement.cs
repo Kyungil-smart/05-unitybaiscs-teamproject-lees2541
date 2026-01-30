@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    [SerializeField] private Transform _viewPoint;
+    
     [SerializeField] private float _mouseSensitivity;
     [SerializeField] private float _pitchMin;
     [SerializeField] private float _pitchMax;
@@ -21,6 +23,11 @@ public class PlayerMovement : MonoBehaviour
         float y = Input.GetAxisRaw("Mouse Y") * _mouseSensitivity * Time.deltaTime;
         
         transform.Rotate(Vector3.up,x);
+
+        _pitch -= y;
+        _pitch = Mathf.Clamp(_pitch, _pitchMin, _pitchMax);
+        
+        _viewPoint.localRotation = Quaternion.Euler(_pitch,0,0);
         
     }
     
