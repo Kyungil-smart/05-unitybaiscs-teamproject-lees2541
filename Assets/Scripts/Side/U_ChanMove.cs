@@ -9,7 +9,7 @@ public class U_ChanMove : MonoBehaviour
     Vector3 moveVec;
     Rigidbody rigid;
     bool jDown;
-    bool isJump;
+    public bool isJump;
     [SerializeField][Range(0, 20)] private float _movespeed;
     [SerializeField][Range(0, 20)] private float _jumpforce;
 
@@ -58,12 +58,14 @@ public class U_ChanMove : MonoBehaviour
         {
             isJump = false;
         }
-
-        else if (collision.gameObject.CompareTag("JumpItem"))
+    }
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("AddJumpForce"))
         {
-            isJump = false;
-
-            Destroy(collision.gameObject);
+            rigid.velocity = new Vector3(rigid.velocity.x, 0, rigid.velocity.z);
+            rigid.AddForce(Vector3.up * 20, ForceMode.Impulse);
         }
+
     }
 }
