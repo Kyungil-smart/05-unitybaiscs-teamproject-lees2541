@@ -1,3 +1,6 @@
+using System;
+using System.Collections;
+using System.Linq;
 using Boss.Skills;
 using Boss.VFX;
 using UnityEngine;
@@ -10,20 +13,33 @@ namespace Boss
 		[SerializeField] private bool enableDebug;
 
 		private BossController controller;
+		private BossStat stat;
+		private YieldInstruction skillYield = new WaitForSeconds(2.5f);
 
 		private void Awake()
 		{
 			controller = GetComponent<BossController>();
+			stat = GetComponent<BossStat>();
 		}
 
-		private void Update()
+		private void Start()
 		{
-			// Test
-			if (Input.GetMouseButtonDown(0))
+			StartCoroutine(BossLogic());
+		}
+
+		IEnumerator BossLogic()
+		{
+			var values = Enum.GetValues(typeof(BossSkillType)).Cast<BossSkillType>().ToArray();
+			while (!stat.IsDie)
 			{
-				BossVFXManager.Instance.Spawn(VFXType.GroundDustExplosion,
-					new Vector3(Random.Range(-5, 5), 0.01f, Random.Range(-5, 5)), Quaternion.identity);
+				BossSkillType randomElement = values[Random.Range(0, values.Length)];
+				controller.CastSkill(randomElement);
+
+				yield return skillYield;
+				while (controller.IsCasting) yield return null;
 			}
+
+			Debug.Log("Died");
 		}
 
 		private void OnGUI()
