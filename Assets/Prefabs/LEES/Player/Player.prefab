@@ -1512,6 +1512,7 @@ GameObject:
   - component: {fileID: 11400114}
   - component: {fileID: 5331215394539080196}
   - component: {fileID: 1397730764035422779}
+  - component: {fileID: 6475109345787655553}
   m_Layer: 10
   m_Name: Player
   m_TagString: Player
@@ -1817,10 +1818,29 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rayOrigin: {fileID: 0}
-  rayDistance: 3
+  rayDistance: 2
   proximityRadius: 2
   proximityScanInterval: 0.05
   includeTriggers: 1
+--- !u!114 &6475109345787655553
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 989a6065450f39343b45733f27eef4c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 50
+  attackRadius: 2
+  attackOffset: {x: 0, y: 0.5, z: 0.8}
+  targetLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  showGizmos: 1
 --- !u!1 &100078
 GameObject:
   m_ObjectHideFlags: 0

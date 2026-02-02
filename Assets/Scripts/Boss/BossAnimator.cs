@@ -46,6 +46,8 @@ namespace Boss
 		public void OnAttackPerformed(BossSkillType skillType) => SetAnimation(skillType, SkillState.Performed);
 		public void OnAttackEnded(BossSkillType skillType) => SetAnimation(skillType, SkillState.Ended);
 
+		public void OnBossDied() => animator.SetTrigger("Die");
+
 		private void SetAnimation(BossSkillType skillType, SkillState skillState)
 		{
 			if (skillActionDict.TryGetValue((skillType, skillState), out Action<Animator> action)) action(animator);
