@@ -3,18 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class U_ChanMove : MonoBehaviour
+public class PlayerMove : MonoBehaviour
 {
     float haxis;
     Vector3 moveVec;
     Rigidbody rigid;
     bool jDown;
     public bool isJump;
+    private Animator anim;
     [SerializeField][Range(0, 20)] private float _movespeed;
     [SerializeField][Range(0, 20)] private float _jumpforce;
 
     void Awake()
     {
+        anim = GetComponent<Animator>();
         rigid = GetComponent<Rigidbody>();
     }
 
@@ -49,7 +51,9 @@ public class U_ChanMove : MonoBehaviour
         {
             rigid.AddForce(Vector3.up * _jumpforce, ForceMode.Impulse);
             isJump = true;
+            anim.SetBool("Jump", true);
         }
+
     }
 
     void OnCollisionEnter(Collision collision)
@@ -58,14 +62,5 @@ public class U_ChanMove : MonoBehaviour
         {
             isJump = false;
         }
-    }
-    void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("AddJumpForce"))
-        {
-            rigid.velocity = new Vector3(rigid.velocity.x, 0, rigid.velocity.z);
-            rigid.AddForce(Vector3.up * 20, ForceMode.Impulse);
-        }
-
     }
 }
