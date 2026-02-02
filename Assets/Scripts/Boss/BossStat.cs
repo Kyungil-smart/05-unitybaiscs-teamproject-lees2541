@@ -5,7 +5,7 @@ namespace Boss
 {
 	public class BossStat : MonoBehaviour
 	{
-		[SerializeField] private int defaultHP = 70;
+		public const int defaultHP = 70;
 
 		public int HP
 		{

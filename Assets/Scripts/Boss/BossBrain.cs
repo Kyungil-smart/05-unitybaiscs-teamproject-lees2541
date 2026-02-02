@@ -2,8 +2,8 @@ using System;
 using System.Collections;
 using System.Linq;
 using Boss.Skills;
-using Boss.VFX;
 using UnityEngine;
+using UnityEngine.Events;
 using Random = UnityEngine.Random;
 
 namespace Boss
@@ -15,6 +15,8 @@ namespace Boss
 		private BossController controller;
 		private BossStat stat;
 		private YieldInstruction skillYield = new WaitForSeconds(2.5f);
+
+		public UnityEvent BossDied;
 
 		private void Awake()
 		{
@@ -39,12 +41,33 @@ namespace Boss
 				while (controller.IsCasting) yield return null;
 			}
 
-			Debug.Log("Died");
+			Die();
+		}
+
+		void Die()
+		{
+			StopAllCoroutines();
+			controller.StopAllCoroutines();
+			controller.CancelSkillForce();
+			BossSceneManager.Instance.SetCamera(BossSceneManager.BossCameraInfo.BossCameraType.BossDie);
+			BossDied?.Invoke();
+
+			Invoke(nameof(CallSceneManager), 3f);
+		}
+
+		void CallSceneManager()
+		{
+			BossSceneManager.Instance.GameEnd();
 		}
 
 		private void OnGUI()
 		{
 			if (!enableDebug) return;
+			if (GUILayout.Button("Kill Boss"))
+			{
+				Die();
+			}
+
 			if (GUILayout.Button("Cast Basic"))
 			{
 				controller.CastSkill(BossSkillType.BasicCast);
@@ -54,7 +77,6 @@ namespace Boss
 			{
 				controller.CastSkill(BossSkillType.HorizontalLaser);
 			}
-
 
 			if (GUILayout.Button("Cast VerticalLaser"))
 			{

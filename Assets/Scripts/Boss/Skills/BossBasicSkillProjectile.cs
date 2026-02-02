@@ -21,6 +21,7 @@ namespace Boss.Skills
 		{
 			rotDir = new Vector3(Random.Range(-1, 1), Random.Range(-1, 1), Random.Range(-1, 1)) * 60;
 			rigidbody.useGravity = false;
+			rigidbody.isKinematic = true;
 		}
 
 		private void Update()
@@ -30,6 +31,7 @@ namespace Boss.Skills
 
 		public void Activate()
 		{
+			rigidbody.isKinematic = false;
 			rigidbody.useGravity = true;
 		}
 
