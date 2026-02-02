@@ -180,7 +180,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5331215394539080196, guid: 1dc23b8711f0e7b48b1d555effb5b8f2, type: 3}
       propertyPath: PerspectiveState
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5331215394539080196, guid: 1dc23b8711f0e7b48b1d555effb5b8f2, type: 3}
       propertyPath: MainCameraTransform
