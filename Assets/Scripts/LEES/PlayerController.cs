@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using UnityChan.Combat;
+using UnityEngine;
 
 namespace UnityChan
 {
@@ -60,11 +61,15 @@ namespace UnityChan
         static int attackState = Animator.StringToHash("Base Layer.punch"); // 공격 State 해시
 
 
+        private AttackSystem attackSystem;
+
+
         private void Awake()
         {
             anim = GetComponent<Animator>();
             col = GetComponent<CapsuleCollider>();
             rb = GetComponent<Rigidbody>();
+            attackSystem = GetComponent<AttackSystem>();
         }
 
         void Start()
@@ -114,15 +119,24 @@ namespace UnityChan
             if (Input.GetKey(KeyCode.Q)) transform.Rotate(0, -1 * rotateSpeed, 0);
             if (Input.GetKey(KeyCode.E)) transform.Rotate(0, 1 * rotateSpeed, 0);
 
-            // T 키로 공격 애니메이션 테스트
+         
             if (Input.GetMouseButtonDown(0))
             {
-                // 점프 중이 아니고, 공격 중이 아닐 때만 공격 가능
                 if (currentBaseState.fullPathHash != jumpState &&
                     currentBaseState.fullPathHash != attackState)
                 {
                     anim.SetTrigger("Attack");
+
+                    // 일정 시간 후 타격 판정 (0.15초 후)
+                    Invoke(nameof(DoAttackHit), 0.15f); // 시간을 조정하며 애니메이션과 싱크를 맞춘다
                 }
+            }
+        }
+        private void DoAttackHit()
+        {
+            if (attackSystem != null)
+            {
+                attackSystem.OnAttackHit();
             }
         }
 
