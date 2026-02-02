@@ -1,5 +1,6 @@
 using System;
 using Boss.VFX;
+using UnityChan.Combat;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -7,6 +8,7 @@ namespace Boss.Skills
 {
 	public class BossBasicSkillProjectile : MonoBehaviour
 	{
+		public float Damage = 25;
 		private Rigidbody rigidbody;
 		private Transform model;
 		private Vector3 rotDir;
@@ -37,6 +39,22 @@ namespace Boss.Skills
 
 		private void OnCollisionEnter(Collision other)
 		{
+			if (other.gameObject.CompareTag("Player"))
+			{
+				other.gameObject.GetComponent<IDamageable>()?.TakeDamage(Damage, gameObject);
+			}
+			else
+			{
+				Collider[] hits = Physics.OverlapSphere(transform.position, 1f);
+				foreach (var col in hits)
+				{
+					if (col.TryGetComponent<IDamageable>(out var damageable))
+					{
+						damageable.TakeDamage(Damage, gameObject);
+					}
+				}
+			}
+
 			BossVFXManager.Instance.Spawn(VFXType.GroundDustExplosion, transform.position, Quaternion.identity);
 			gameObject.SetActive(false);
 		}

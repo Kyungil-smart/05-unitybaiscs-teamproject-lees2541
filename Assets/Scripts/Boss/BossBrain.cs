@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Linq;
 using Boss.Skills;
+using UnityChan.Combat;
 using UnityEngine;
 using UnityEngine.Events;
 using Random = UnityEngine.Random;
@@ -12,33 +13,40 @@ namespace Boss
 	{
 		[SerializeField] private bool enableDebug;
 
-		private BossController controller;
-		private BossStat stat;
-		private YieldInstruction skillYield = new WaitForSeconds(2.5f);
-
 		public UnityEvent BossDied;
+		public UnityEvent<float, float> HPChanged;
+
+		private BossController controller;
+		private HealthSystem health;
+
+		private YieldInstruction skillYield = new WaitForSeconds(2.5f);
 
 		private void Awake()
 		{
 			controller = GetComponent<BossController>();
-			stat = GetComponent<BossStat>();
+			health = GetComponent<HealthSystem>();
 		}
 
 		private void Start()
 		{
+			health.OnDamaged += _ => HPChanged?.Invoke(health.CurrentHealth, health.MaxHealth);
 			StartCoroutine(BossLogic());
 		}
 
 		IEnumerator BossLogic()
 		{
 			var values = Enum.GetValues(typeof(BossSkillType)).Cast<BossSkillType>().ToArray();
-			while (!stat.IsDie)
+			while (health.IsAlive)
 			{
-				BossSkillType randomElement = values[Random.Range(0, values.Length)];
-				controller.CastSkill(randomElement);
+				if (!enableDebug)
+				{
+					BossSkillType randomElement = values[Random.Range(0, values.Length)];
+					controller.CastSkill(randomElement);
 
-				yield return skillYield;
-				while (controller.IsCasting) yield return null;
+					yield return skillYield;
+					while (controller.IsCasting) yield return null;
+				}
+				else yield return null;
 			}
 
 			Die();
@@ -52,7 +60,7 @@ namespace Boss
 			BossSceneManager.Instance.SetCamera(BossSceneManager.BossCameraInfo.BossCameraType.BossDie);
 			BossDied?.Invoke();
 
-			Invoke(nameof(CallSceneManager), 3f);
+			Invoke(nameof(CallSceneManager), 4f);
 		}
 
 		void CallSceneManager()
