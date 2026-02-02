@@ -11,4 +11,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SideViewEndScene.unity
     guid: 9712e8f4ee8fee14cad254e3023e2a2b
+  - enabled: 1
+    path: Assets/Scenes/QuarterViewScene.unity
+    guid: 141ce6d8f2d361b4a908f75c7d365dfa
+  - enabled: 1
+    path: Assets/Scenes/FirstPersonScene.unity
+    guid: 32d1d7f7de36ec548bc3e9f2f5928e18
   m_configObjects: {}
