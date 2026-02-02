@@ -38,11 +38,15 @@ namespace Boss
 			var values = Enum.GetValues(typeof(BossSkillType)).Cast<BossSkillType>().ToArray();
 			while (health.IsAlive)
 			{
-				BossSkillType randomElement = values[Random.Range(0, values.Length)];
-				controller.CastSkill(randomElement);
+				if (!enableDebug)
+				{
+					BossSkillType randomElement = values[Random.Range(0, values.Length)];
+					controller.CastSkill(randomElement);
 
-				yield return skillYield;
-				while (controller.IsCasting) yield return null;
+					yield return skillYield;
+					while (controller.IsCasting) yield return null;
+				}
+				else yield return null;
 			}
 
 			Die();
@@ -56,7 +60,7 @@ namespace Boss
 			BossSceneManager.Instance.SetCamera(BossSceneManager.BossCameraInfo.BossCameraType.BossDie);
 			BossDied?.Invoke();
 
-			Invoke(nameof(CallSceneManager), 3f);
+			Invoke(nameof(CallSceneManager), 4f);
 		}
 
 		void CallSceneManager()

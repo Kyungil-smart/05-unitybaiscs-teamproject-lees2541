@@ -533,7 +533,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 100076, guid: 1dc23b8711f0e7b48b1d555effb5b8f2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1509939498}
   m_SourcePrefab: {fileID: 100100000, guid: 1dc23b8711f0e7b48b1d555effb5b8f2, type: 3}
 --- !u!4 &315233162 stripped
 Transform:
@@ -706,7 +709,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5331215394539080196, guid: 1dc23b8711f0e7b48b1d555effb5b8f2, type: 3}
   m_PrefabInstance: {fileID: 300068144}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1509939488}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4d110442bb8eec748bd1e4a3065f9199, type: 3}
@@ -4321,6 +4324,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8513953894037220491, guid: 6099b6ecbe84bd74cafa86bf0b2b0118, type: 3}
+      propertyPath: enableDebug
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8513953894037220491, guid: 6099b6ecbe84bd74cafa86bf0b2b0118, type: 3}
       propertyPath: BossDied.m_PersistentCalls.m_Calls.Array.size
       value: 1
       objectReference: {fileID: 0}
@@ -4452,6 +4459,27 @@ MonoBehaviour:
   maxHealth: 7000
   currentHealth: 0
   destroyOnDeath: 0
+  destroyDelay: 0
+--- !u!1 &1509939488 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 100076, guid: 1dc23b8711f0e7b48b1d555effb5b8f2, type: 3}
+  m_PrefabInstance: {fileID: 300068144}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1509939498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1509939488}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83fd850cb1ce62847a923e004ff6d8b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 100
+  currentHealth: 0
+  destroyOnDeath: 1
   destroyDelay: 0
 --- !u!1 &1559983296
 GameObject:

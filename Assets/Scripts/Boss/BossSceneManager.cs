@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityChan;
+using UnityChan.Combat;
 
 namespace Boss
 {
@@ -19,7 +20,6 @@ namespace Boss
 
 		[Header("Entity")] [SerializeField] private PlayerController player;
 		[SerializeField] private BossBrain boss;
-
 
 		[Header("UI")] [SerializeField] private Slider hpSlider;
 		[SerializeField] private GameObject endPanel;
@@ -58,6 +58,13 @@ namespace Boss
 		private void Start()
 		{
 			SetCamera(BossCameraInfo.BossCameraType.PlayerQuarter);
+			player.GetComponent<HealthSystem>().OnDeath +=
+				() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+		}
+
+		private void Update()
+		{
+			if (player.transform.position.y < -50) SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 		}
 
 		private void OnDestroy()
@@ -69,7 +76,6 @@ namespace Boss
 		{
 			endPanel.SetActive(true);
 
-			float defaultBest = 0;
 			var startedTime = PlayerPrefs.GetFloat("StartTime");
 			var clearTime = Time.time - startedTime;
 			clearTimeText.text = $"클리어 시간: {(clearTime / 60):00}분 {(clearTime % 60):F2}\n";
