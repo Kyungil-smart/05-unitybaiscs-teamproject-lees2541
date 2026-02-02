@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-public class QuaterSceneChanger : MonoBehaviour
+public class KTS_SceneChanger : MonoBehaviour
 {
     private void OnTriggerEnter(Collider other)
     {

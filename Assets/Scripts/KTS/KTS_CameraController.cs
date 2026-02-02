@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations;
 
-public class QuaterCameraCtrl : MonoBehaviour
+public class KTS_CameraController : MonoBehaviour
 {
     [SerializeField] private Vector3 cameraOffset;
     // [SerializeField] private float cameraMoveSpeed;
