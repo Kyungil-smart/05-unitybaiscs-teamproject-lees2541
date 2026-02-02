@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.Search;
 using UnityChan;
-public class RespawnController : MonoBehaviour
+public class Side_RespawnController : MonoBehaviour
 {
     private GameObject[] items;
     public Vector3 respawnPos = new Vector3(0, 3, 4);
@@ -19,7 +19,7 @@ public class RespawnController : MonoBehaviour
         {
             Debug.Log("Dead!");
 
-            SidePlayerController SetPosition = other.GetComponent<SidePlayerController>();
+            PlayerController SetPosition = other.GetComponent<PlayerController>();
             if (SetPosition != null)
             {
                 SetPosition.enabled = false;

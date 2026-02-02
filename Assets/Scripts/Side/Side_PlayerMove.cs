@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class PlayerMove : MonoBehaviour
+public class Side_layerMove : MonoBehaviour
 {
     float haxis;
     Vector3 moveVec;

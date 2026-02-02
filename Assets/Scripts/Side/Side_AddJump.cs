@@ -4,17 +4,18 @@ using UnityChan;
 using UnityEditor;
 using UnityEngine;
 
-public class ItemController : MonoBehaviour
+public class Side_AddJump : MonoBehaviour
 {
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            PlayerMove GetJump = other.GetComponent<PlayerMove>();
+            PlayerController GetJump = other.GetComponent<PlayerController>();
 
             if (GetJump != null)
             {
-                GetJump.isJump = false;
+                // 예시: jumpConsumed를 false로 설정 (원하는 동작에 맞게 수정)
+                //GetJump.jumpConsumed = false;
             }
 
             Debug.Log("AddJumpItem!");
