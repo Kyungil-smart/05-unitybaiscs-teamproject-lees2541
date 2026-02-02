@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Cinemachine;
 using TMPro;
@@ -13,11 +14,16 @@ namespace Boss
 	{
 		[Header("World")] [SerializeField] private Transform mapMinimumPoint;
 		[SerializeField] private Transform mapMaximumPoint;
-		[SerializeField] private List<BossCameraInfo> _cameras;
-		[SerializeField] private PlayerController _player;
+		[SerializeField] private List<BossCameraInfo> cameras;
+		[SerializeField] private GameObject floor;
+
+		[Header("Entity")] [SerializeField] private PlayerController player;
+		[SerializeField] private BossBrain boss;
+
 
 		[Header("UI")] [SerializeField] private Slider hpSlider;
 		[SerializeField] private GameObject endPanel;
+		[SerializeField] private CanvasGroup gameCanvasGroup;
 		[SerializeField] private TextMeshProUGUI clearTimeText;
 
 		[Serializable]
@@ -27,7 +33,8 @@ namespace Boss
 			{
 				BossTop,
 				PlayerTop,
-				BossDie
+				BossDie,
+				PlayerQuarter
 			}
 
 			public BossCameraType cameraType;
@@ -50,7 +57,7 @@ namespace Boss
 
 		private void Start()
 		{
-			SetCamera(BossCameraInfo.BossCameraType.PlayerTop);
+			SetCamera(BossCameraInfo.BossCameraType.PlayerQuarter);
 		}
 
 		private void OnDestroy()
@@ -83,10 +90,48 @@ namespace Boss
 
 		public void SetCamera(BossCameraInfo.BossCameraType cameraType)
 		{
-			foreach (var bossCameraInfo in _cameras)
+			foreach (var bossCameraInfo in cameras)
 			{
 				bossCameraInfo.camera.Priority = bossCameraInfo.cameraType == cameraType ? 10 : 0;
 			}
+		}
+
+		private void OnTriggerEnter(Collider other)
+		{
+			if (other.CompareTag("Player"))
+			{
+				if (boss.enabled) return;
+				StartCoroutine(StartGame());
+				GetComponent<Collider>().enabled = false;
+			}
+		}
+
+		private IEnumerator StartGame()
+		{
+			player.gameObject.SetActive(false);
+			SetCamera(BossCameraInfo.BossCameraType.BossDie);
+			yield return new WaitForSeconds(2f);
+			Destroy(floor);
+
+			float time = 1;
+			while (time > 0)
+			{
+				time -= Time.deltaTime;
+				gameCanvasGroup.alpha = 1 - time;
+				yield return null;
+			}
+
+			SetCamera(BossCameraInfo.BossCameraType.PlayerTop);
+			yield return new WaitForSeconds(1f);
+
+			player.gameObject.SetActive(true);
+			gameCanvasGroup.alpha = 1;
+			boss.enabled = true;
+		}
+
+		public void OnHealthChanged(float current, float max)
+		{
+			hpSlider.value = current / max;
 		}
 	}
 }
