@@ -41,6 +41,7 @@ namespace Boss.Skills
 
 		public IEnumerator StartAttack()
 		{
+			BossSceneManager.Instance.SetCamera(BossSceneManager.BossCameraInfo.BossCameraType.BossTop);
 			foreach (var projectile in projectiles)
 			{
 				Vector3 randomPos = minPos.RandomRange(maxPos);
@@ -64,6 +65,7 @@ namespace Boss.Skills
 
 		public IEnumerator EndAttack()
 		{
+			BossSceneManager.Instance.SetCamera(BossSceneManager.BossCameraInfo.BossCameraType.PlayerTop);
 			foreach (var p in projectiles)
 			{
 				p.gameObject.SetActive(false);
