@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityChan;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,14 +10,16 @@ public class ItemController : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            U_ChanMove uChanMove = other.GetComponent<U_ChanMove>();
+            PlayerMove GetJump = other.GetComponent<PlayerMove>();
 
-            if (uChanMove != null)
+            if (GetJump != null)
             {
-                uChanMove.isJump = false;
+                GetJump.isJump = false;
             }
 
-            Destroy(gameObject);
+            Debug.Log("AddJumpItem!");
+
+            gameObject.SetActive(false);
         }
     }
 }

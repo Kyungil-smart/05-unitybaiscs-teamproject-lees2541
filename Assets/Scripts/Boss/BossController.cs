@@ -33,6 +33,21 @@ namespace Boss
 			}
 		}
 
+		public void CancelSkillForce()
+		{
+			if (currentCoroutine != null)
+				StopCoroutine(currentCoroutine);
+
+			AttackPerformed?.Invoke(currentSkillType);
+			AttackEnded?.Invoke(currentSkillType);
+			currentSkill?.EndAttack();
+
+			currentSkill = null;
+			currentCoroutine = null;
+			IsCasting = false;
+		}
+
+
 		public void CastSkill(BossSkillType skillType)
 		{
 			if (IsCasting) return;
