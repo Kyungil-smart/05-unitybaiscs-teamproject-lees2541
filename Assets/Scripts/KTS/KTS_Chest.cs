@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
@@ -7,8 +8,14 @@ public class KTS_Chest : MonoBehaviour, IInteract
 	[field: SerializeField] public UnityEvent Interacted { get; set; }
 	public GameObject compass;
 	public Transform chestDoor;
+	private Outline outline;
 
 	private bool interacted = false;
+
+	private void Awake()
+	{
+		outline = GetComponent<Outline>();
+	}
 
 	private void Start()
 	{
@@ -25,6 +32,16 @@ public class KTS_Chest : MonoBehaviour, IInteract
 			interacted = true;
 			StartCoroutine(OpenChest());
 		}
+	}
+
+	public void OnInteractFocusEnter()
+	{
+		outline.enabled = true;
+	}
+
+	public void OnInteractFocusExit()
+	{
+		outline.enabled = false;
 	}
 
 	[ContextMenu("Open Chest")]

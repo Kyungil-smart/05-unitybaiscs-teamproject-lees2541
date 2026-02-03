@@ -55,8 +55,17 @@ namespace UnityChan
 		private void TryUpdateInteractable()
 		{
 			Ray forwardRay = new Ray(transform.position + Vector3.up * 1.3f, transform.forward * 2);
-			Ray cameraRay = new Ray(transform.position + Vector3.up * 1.3f,
-				controller.MainCameraTransform.forward * 2);
+
+			Ray cameraRay;
+			if (controller == null)
+			{
+				cameraRay = new Ray(transform.position + Vector3.up * 1.3f, transform.forward * 2);
+			}
+			else
+			{
+				cameraRay = new Ray(transform.position + Vector3.up * 1.3f,
+					controller.MainCameraTransform.forward * 2);
+			}
 
 			if (Physics.Raycast(forwardRay, out RaycastHit hit, rayDistance))
 			{

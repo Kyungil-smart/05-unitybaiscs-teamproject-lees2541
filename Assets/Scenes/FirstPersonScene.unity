@@ -3748,7 +3748,7 @@ GameObject:
   - component: {fileID: 493888841}
   - component: {fileID: 493888840}
   m_Layer: 0
-  m_Name: StartBGM
+  m_Name: StartSFX
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11057,7 +11057,7 @@ GameObject:
   - component: {fileID: 1286208372}
   - component: {fileID: 1286208371}
   m_Layer: 0
-  m_Name: StartBGM (1)
+  m_Name: BGM
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19068,6 +19068,8 @@ SceneRoots:
   - {fileID: 1571906255}
   - {fileID: 807452529}
   - {fileID: 377682840}
+  - {fileID: 493888841}
+  - {fileID: 1286208372}
   - {fileID: 141081464}
   - {fileID: 920265343}
   - {fileID: 86782120}
@@ -19081,5 +19083,3 @@ SceneRoots:
   - {fileID: 204910336}
   - {fileID: 1434037346}
   - {fileID: 1970273237}
-  - {fileID: 493888841}
-  - {fileID: 1286208372}

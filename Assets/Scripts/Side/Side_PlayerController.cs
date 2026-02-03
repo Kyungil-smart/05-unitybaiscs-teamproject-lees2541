@@ -3,245 +3,248 @@ using UnityEngine;
 
 namespace UnityChan
 {
-    [RequireComponent(typeof(Animator))]
-    [RequireComponent(typeof(CapsuleCollider))]
-    [RequireComponent(typeof(Rigidbody))]
-    public class Side_PlayerController : MonoBehaviour
-    {
-        bool jDown;
-        public bool isJump;
-        private bool canAttack = true;
-        public enum MovementSpace
-        {
-            World,
-            Camera
-        }
+	[RequireComponent(typeof(Animator))]
+	[RequireComponent(typeof(CapsuleCollider))]
+	[RequireComponent(typeof(Rigidbody))]
+	public class Side_PlayerController : MonoBehaviour
+	{
+		bool jDown;
+		public bool isJump;
+		private bool canAttack = true;
 
-        public enum ViewMode
-        {
-            Default,
-            SideView,   // 2D È¾½ºÅ©·Ñ ½ºÅ¸ÀÏ (W/S ºñÈ°¼ºÈ­)
-            FPS         // 1ÀÎÄª ¸ğµå (¸¶¿ì½º °ø°İ ºñÈ°¼ºÈ­)
-        }
+		public enum MovementSpace
+		{
+			World,
+			Camera
+		}
 
-        [Header("Movement")] public MovementSpace PerspectiveState = MovementSpace.World;
-        public ViewMode CurrentViewMode = ViewMode.Default;
-        public Transform MainCameraTransform;
+		public enum ViewMode
+		{
+			Default,
+			SideView, // 2D íš¡ìŠ¤í¬ë¡¤ ìŠ¤íƒ€ì¼ (W/S ë¹„í™œì„±í™”)
+			FPS // 1ì¸ì¹­ ëª¨ë“œ (ë§ˆìš°ìŠ¤ ê³µê²© ë¹„í™œì„±í™”)
+		}
 
-        [Header("Control")] public float moveSpeed = 7.0f;
-        public float rotateSpeed = 7.0f;
-        public float jumpPower = 70.0f;
-        public LayerMask groundLayers;
+		[Header("Movement")] public MovementSpace PerspectiveState = MovementSpace.World;
+		public ViewMode CurrentViewMode = ViewMode.Default;
+		public Transform MainCameraTransform;
 
-        [Header("Animation")] public float animSpeed = 1.5f;
-        public float lookSmoother = 3.0f;
-        public bool useCurves = true;
-        public float useCurvesHeight = 0.5f;
+		[Header("Control")] public float moveSpeed = 7.0f;
+		public float rotateSpeed = 7.0f;
+		public float jumpPower = 70.0f;
+		public LayerMask groundLayers;
 
-        private CapsuleCollider col;
-        private Rigidbody rb;
-        private Animator anim;
+		[Header("Animation")] public float animSpeed = 1.5f;
+		public float lookSmoother = 3.0f;
+		public bool useCurves = true;
+		public float useCurvesHeight = 0.5f;
 
-        private Vector3 velocity;
+		private CapsuleCollider col;
+		private Rigidbody rb;
+		private Animator anim;
 
-        // CapsuleCollider ÃÊ±â°ª
-        private float colliderOriginHeight;
-        private Vector3 colliderOriginCenter;
+		private Vector3 velocity;
 
-        private AnimatorStateInfo currentBaseState;
+		// CapsuleCollider ì´ˆê¸°ê°’
+		private float colliderOriginHeight;
+		private Vector3 colliderOriginCenter;
 
-        static int locoState = Animator.StringToHash("Base Layer.Locomotion");
-        static int jumpState = Animator.StringToHash("Base Layer.Jump");
-        static int idleState = Animator.StringToHash("Base Layer.Idle");
-        static int restState = Animator.StringToHash("Base Layer.Rest");
-        static int attackState = Animator.StringToHash("Base Layer.punch");
+		private AnimatorStateInfo currentBaseState;
 
-        private AttackSystem attackSystem;
+		static int locoState = Animator.StringToHash("Base Layer.Locomotion");
+		static int jumpState = Animator.StringToHash("Base Layer.Jump");
+		static int idleState = Animator.StringToHash("Base Layer.Idle");
+		static int restState = Animator.StringToHash("Base Layer.Rest");
+		static int attackState = Animator.StringToHash("Base Layer.punch");
 
-        private void Awake()
-        {
-            anim = GetComponent<Animator>();
-            col = GetComponent<CapsuleCollider>();
-            rb = GetComponent<Rigidbody>();
-            attackSystem = GetComponent<AttackSystem>();
-        }
+		private AttackSystem attackSystem;
 
-        void Start()
-        {
-            if (MainCameraTransform == null)
-                MainCameraTransform = Camera.main.transform;
+		private void Awake()
+		{
+			anim = GetComponent<Animator>();
+			col = GetComponent<CapsuleCollider>();
+			rb = GetComponent<Rigidbody>();
+			attackSystem = GetComponent<AttackSystem>();
+		}
 
-            colliderOriginHeight = col.height;
-            colliderOriginCenter = col.center;
-        }
+		void Start()
+		{
+			if (MainCameraTransform == null)
+				MainCameraTransform = Camera.main.transform;
 
-        void Update()
-        {
-            jDown = Input.GetButtonDown("Jump");
-            Move();
-        }
+			colliderOriginHeight = col.height;
+			colliderOriginCenter = col.center;
+		}
 
-        void FixedUpdate()
-        {
-            ProcessInput();
-            Jump();
-        }
-        public void SetCameraTransform(Transform tr)
-        {
-            MainCameraTransform = tr;
-        }
+		void Update()
+		{
+			ProcessInput();
+		}
 
-        private void ProcessInput()
-        {
-            if (!canAttack) return;
-            if (Input.GetMouseButtonDown(0) && CurrentViewMode != ViewMode.FPS)
-            {
-                canAttack = false;
-                anim.SetTrigger("Attack");
-                Invoke(nameof(DoAttackHit), 0.15f);
-                Invoke(nameof(ResetAttack), 0.5f);
-            }
-        }
+		void FixedUpdate()
+		{
+			Move();
+			Jump();
+		}
 
-        private void ResetAttack()
-        {
-            canAttack = true;
-        }
+		public void SetCameraTransform(Transform tr)
+		{
+			MainCameraTransform = tr;
+		}
 
-        private void DoAttackHit()
-        {
-            if (attackSystem != null)
-            {
-                attackSystem.OnAttackHit();
-            }
-        }
+		private void ProcessInput()
+		{
+			jDown = Input.GetButton("Jump");
+			if (canAttack && Input.GetMouseButtonDown(0) && CurrentViewMode != ViewMode.FPS)
+			{
+				canAttack = false;
+				anim.SetTrigger("Attack");
+				Invoke(nameof(DoAttackHit), 0.15f);
+				Invoke(nameof(ResetAttack), 0.5f);
+			}
+		}
 
-        void Jump()
-        {
-            if (jDown && !isJump)
-            {
-                rb.AddForce(Vector3.up * jumpPower, ForceMode.Impulse);
-                anim.SetBool("Jump", true);
-                isJump = true;
-            }
+		private void ResetAttack()
+		{
+			canAttack = true;
+		}
 
-            // Animator Stateº° Ã³¸®
-            if (currentBaseState.fullPathHash == locoState)
-            {
-                if (useCurves)
-                {
-                    ResetCollider();
-                }
-            }
-            else if (currentBaseState.fullPathHash == jumpState)
-            {
-                if (!anim.IsInTransition(0))
-                {
-                    /*if (useCurves)
-                    {
-                        float jumpHeight = anim.GetFloat("JumpHeight");
-                        float gravityControl = anim.GetFloat("GravityControl");
-                        /*if (gravityControl > 0)
-                            rb.useGravity = false;
+		private void DoAttackHit()
+		{
+			if (attackSystem != null)
+			{
+				attackSystem.OnAttackHit();
+			}
+		}
 
-                        Ray ray = new Ray(transform.position + Vector3.up, -Vector3.up);
-                        RaycastHit hitInfo = new RaycastHit();
-                        if (Physics.Raycast(ray, out hitInfo))
-                        {
-                            if (hitInfo.distance > useCurvesHeight)
-                            {
-                                col.height = colliderOriginHeight - jumpHeight;
-                                col.center = new Vector3(0, colliderOriginCenter.y + jumpHeight, 0);
-                            }
-                            else
-                            {
-                                ResetCollider();
-                            }
-                        }
-                    }*/
+		void Jump()
+		{
+			if (jDown && !isJump)
+			{
+				rb.velocity = Vector3.zero;
+				rb.AddForce(Vector3.up * jumpPower, ForceMode.Impulse);
+				anim.SetBool("Jump", true);
+				isJump = true;
+			}
 
-                    anim.SetBool("Jump", false);
-                }
-            }
-            else if (currentBaseState.fullPathHash == idleState)
-            {
-                if (Input.GetKeyDown(KeyCode.R))
-                {
-                    anim.SetBool("Rest", true);
-                }
-            }
-            else if (currentBaseState.fullPathHash == restState)
-            {
-                if (!anim.IsInTransition(0))
-                {
-                    anim.SetBool("Rest", false);
-                }
-            }
-            else if (currentBaseState.fullPathHash == attackState)
-            {
-                // °ø°İ ¾Ö´Ï¸ŞÀÌ¼Ç Àç»ı Áß
-            }
-        }
+			// Animator Stateë³„ ì²˜ë¦¬
+			if (currentBaseState.fullPathHash == locoState)
+			{
+				if (useCurves)
+				{
+					ResetCollider();
+				}
+			}
+			else if (currentBaseState.fullPathHash == jumpState)
+			{
+				if (!anim.IsInTransition(0))
+				{
+					/*if (useCurves)
+					{
+					    float jumpHeight = anim.GetFloat("JumpHeight");
+					    float gravityControl = anim.GetFloat("GravityControl");
+					    /*if (gravityControl > 0)
+					        rb.useGravity = false;
 
-        void Move()
-        {
-            float h = Input.GetAxisRaw("Horizontal");
-            float v = Input.GetAxisRaw("Vertical");
+					    Ray ray = new Ray(transform.position + Vector3.up, -Vector3.up);
+					    RaycastHit hitInfo = new RaycastHit();
+					    if (Physics.Raycast(ray, out hitInfo))
+					    {
+					        if (hitInfo.distance > useCurvesHeight)
+					        {
+					            col.height = colliderOriginHeight - jumpHeight;
+					            col.center = new Vector3(0, colliderOriginCenter.y + jumpHeight, 0);
+					        }
+					        else
+					        {
+					            ResetCollider();
+					        }
+					    }
+					}*/
 
-            anim.SetFloat("Direction", h);
-            anim.speed = animSpeed;
-            currentBaseState = anim.GetCurrentAnimatorStateInfo(0);
-            //rb.useGravity = true;
+					anim.SetBool("Jump", false);
+				}
+			}
+			else if (currentBaseState.fullPathHash == idleState)
+			{
+				if (Input.GetKeyDown(KeyCode.R))
+				{
+					anim.SetBool("Rest", true);
+				}
+			}
+			else if (currentBaseState.fullPathHash == restState)
+			{
+				if (!anim.IsInTransition(0))
+				{
+					anim.SetBool("Rest", false);
+				}
+			}
+			else if (currentBaseState.fullPathHash == attackState)
+			{
+				// ê³µê²© ì• ë‹ˆë©”ì´ì…˜ ì¬ìƒ ì¤‘
+			}
+		}
 
-            Vector3 moveDir = Vector3.zero;
+		void Move()
+		{
+			float h = Input.GetAxisRaw("Horizontal");
+			float v = Input.GetAxisRaw("Vertical");
 
-            if (CurrentViewMode == ViewMode.SideView)
-            {
-                v = 0f;
-            }
+			anim.SetFloat("Direction", h);
+			anim.speed = animSpeed;
+			currentBaseState = anim.GetCurrentAnimatorStateInfo(0);
+			//rb.useGravity = true;
 
-            if (PerspectiveState == MovementSpace.World)
-            {
-                moveDir = new Vector3(h, 0, v).normalized;
-            }
-            else if (PerspectiveState == MovementSpace.Camera)
-            {
-                moveDir = MainCameraTransform.transform.forward * v + MainCameraTransform.transform.right * h;
-                moveDir.y = 0;
-                moveDir.Normalize();
-            }
+			Vector3 moveDir = Vector3.zero;
 
-            float speedParam = Mathf.Clamp01(moveDir.magnitude);
-            anim.SetFloat("Speed", speedParam);
-            anim.SetFloat("Direction", 0f);
+			if (CurrentViewMode == ViewMode.SideView)
+			{
+				v = 0f;
+			}
 
-            if (moveDir.magnitude > 0.01f)
-            {
-                rb.MovePosition(transform.position + moveDir * (moveSpeed * Time.fixedDeltaTime));
+			if (PerspectiveState == MovementSpace.World)
+			{
+				moveDir = new Vector3(h, 0, v).normalized;
+			}
+			else if (PerspectiveState == MovementSpace.Camera)
+			{
+				moveDir = MainCameraTransform.transform.forward * v + MainCameraTransform.transform.right * h;
+				moveDir.y = 0;
+				moveDir.Normalize();
+			}
 
-                Quaternion targetRot = Quaternion.LookRotation(moveDir, Vector3.up);
-                float t = Mathf.Clamp01(rotateSpeed * Time.fixedDeltaTime);
-                rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRot, t));
-            }
-        }
+			float speedParam = Mathf.Clamp01(moveDir.magnitude);
+			anim.SetFloat("Speed", speedParam);
+			anim.SetFloat("Direction", 0f);
 
-        // Animation Event¿ë (³ªÁß¿¡ »ç¿ëÇÏ·Á¸é ³²°ÜµÒ)
-        public void OnJumpTakeoff()
-        {
-            // ÇöÀç´Â »ç¿ë ¾È ÇÔ - Áï½Ã Á¡ÇÁ ¹æ½ÄÀ¸·Î º¯°æµÊ
-        }
-        void ResetCollider()
-        {
-            col.height = colliderOriginHeight;
-            col.center = colliderOriginCenter;
-        }
+			if (moveDir.magnitude > 0.01f)
+			{
+				rb.MovePosition(transform.position + moveDir * (moveSpeed * Time.fixedDeltaTime));
 
-        void OnCollisionEnter(Collision collision)
-        {
-            if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
-            {
-                isJump = false;
-            }
-        }
-    }
+				Quaternion targetRot = Quaternion.LookRotation(moveDir, Vector3.up);
+				float t = Mathf.Clamp01(rotateSpeed * Time.fixedDeltaTime);
+				rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRot, t));
+			}
+		}
+
+		// Animation Eventìš© (ë‚˜ì¤‘ì— ì‚¬ìš©í•˜ë ¤ë©´ ë‚¨ê²¨ë‘ )
+		public void OnJumpTakeoff()
+		{
+			// í˜„ì¬ëŠ” ì‚¬ìš© ì•ˆ í•¨ - ì¦‰ì‹œ ì í”„ ë°©ì‹ìœ¼ë¡œ ë³€ê²½ë¨
+		}
+
+		void ResetCollider()
+		{
+			col.height = colliderOriginHeight;
+			col.center = colliderOriginCenter;
+		}
+
+		void OnCollisionEnter(Collision collision)
+		{
+			if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
+			{
+				isJump = false;
+			}
+		}
+	}
 }
