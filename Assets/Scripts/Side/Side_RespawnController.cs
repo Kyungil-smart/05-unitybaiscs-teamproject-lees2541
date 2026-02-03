@@ -30,11 +30,30 @@ public class Side_RespawnController : MonoBehaviour
             {
                 other.transform.position = respawnPos;
             }
-            RespawnItem();
+            PlayerRespawn();
         }
     }
 
-    private void RespawnItem()
+    private void Update()
+    { 
+        if(Input.GetKeyDown(KeyCode.F5))
+        {
+            ItemRespawn();
+        }
+    }
+    private void ItemRespawn()
+    {
+        if (items != null)
+        {
+            foreach (var item in items)
+            {
+                if (item != null)
+                    item.SetActive(true);
+            }
+        }
+    }
+
+    private void PlayerRespawn()
     {
         Debug.Log("Respawn Item");
         foreach (var item in items)
@@ -43,4 +62,5 @@ public class Side_RespawnController : MonoBehaviour
                 item.SetActive(true);
         }
     }
+
 }
