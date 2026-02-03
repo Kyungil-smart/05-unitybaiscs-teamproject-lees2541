@@ -19,7 +19,7 @@ namespace Boss
 		private BossController controller;
 		private HealthSystem health;
 
-		private YieldInstruction skillYield = new WaitForSeconds(2.5f);
+		private YieldInstruction skillYield = new WaitForSeconds(1f);
 
 		private void Awake()
 		{
