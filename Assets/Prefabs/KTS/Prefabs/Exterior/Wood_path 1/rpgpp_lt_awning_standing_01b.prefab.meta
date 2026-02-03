@@ -1,12 +1,10 @@
 fileFormatVersion: 2
-<<<<<<<< HEAD:Assets/Prefabs/LEES.meta
-guid: 7510b2f89f6231445b8983a17fd4a1d0
-folderAsset: yes
-DefaultImporter:
+<<<<<<<< HEAD:Assets/Prefabs/KTS/Prefabs/Exterior/Wood_path 1/rpgpp_lt_fence_wood_02a.prefab.meta
+guid: e62c07847b6c9eb44b543fe5fe0d4f9d
 ========
 guid: ec8bbb951dac09f499e71e131fddff60
-PrefabImporter:
 >>>>>>>> origin/Dev:Assets/Prefabs/KTS/Prefabs/Exterior/Wood_path 1/rpgpp_lt_awning_standing_01b.prefab.meta
+PrefabImporter:
   externalObjects: {}
   userData: 
   assetBundleName: 
