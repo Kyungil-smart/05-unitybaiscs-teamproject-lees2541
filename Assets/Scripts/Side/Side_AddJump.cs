@@ -10,12 +10,11 @@ public class Side_AddJump : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            PlayerController GetJump = other.GetComponent<PlayerController>();
+            Side_PlayerController GetJump = other.GetComponent<Side_PlayerController>();
 
             if (GetJump != null)
             {
-                // 예시: jumpConsumed를 false로 설정 (원하는 동작에 맞게 수정)
-                //GetJump.jumpConsumed = false;
+                GetJump.isJump = false;
             }
 
             Debug.Log("AddJumpItem!");

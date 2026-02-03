@@ -51,7 +51,6 @@ public class Side_layerMove : MonoBehaviour
         {
             rigid.AddForce(Vector3.up * _jumpforce, ForceMode.Impulse);
             isJump = true;
-            anim.SetBool("Jump", true);
         }
 
     }
