@@ -48,17 +48,24 @@ namespace UnityChan
 
 			if (Input.GetKeyDown(KeyCode.F))
 			{
-				CurrentInteractable.Interact();
+				CurrentInteractable?.Interact();
 			}
 		}
 
 		private void TryUpdateInteractable()
 		{
-			Ray ray = new Ray(transform.position + Vector3.up * 1.3f, transform.forward);
+			Ray forwardRay = new Ray(transform.position + Vector3.up * 1.3f, transform.forward);
+			Ray cameraRay = new Ray(transform.position + Vector3.up * 1.3f,
+				controller.MainCameraTransform.forward);
 
-			if (Physics.Raycast(ray, out RaycastHit hit, rayDistance))
+			if (Physics.Raycast(forwardRay, out RaycastHit hit, rayDistance))
 			{
 				if (hit.collider.gameObject.TryGetComponent(out IInteract interact) && interact != CurrentInteractable)
+					CurrentInteractable = interact;
+			}
+			else if (Physics.Raycast(cameraRay, out RaycastHit hit2, rayDistance))
+			{
+				if (hit2.collider.gameObject.TryGetComponent(out IInteract interact) && interact != CurrentInteractable)
 					CurrentInteractable = interact;
 			}
 			else

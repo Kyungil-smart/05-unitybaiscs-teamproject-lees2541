@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Prefabs/KTS/Prefabs/Exterior/Wood_path 1/rpgpp_lt_fence_wood_01b.prefab.meta
+guid: 6176429f0f5e88b46a9969d36c715c24
+========
 guid: 60ec3c0f2118a42459d27da3df67b64b
+>>>>>>>> origin/Dev:Assets/Prefabs/KTS/Prefabs/Exterior/Wood_path 1/rpgpp_lt_awning_standing_01a.prefab.meta
 PrefabImporter:
   externalObjects: {}
   userData: 

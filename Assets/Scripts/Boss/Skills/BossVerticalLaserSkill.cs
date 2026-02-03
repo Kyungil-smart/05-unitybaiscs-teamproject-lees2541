@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Boss.VFX;
+using UnityChan.Combat;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -13,17 +14,19 @@ namespace Boss.Skills
 	{
 		public BossSkillType Type => BossSkillType.VerticalLaser;
 
-		[SerializeField] private int laserCount = 3;
+		[SerializeField] private float laserDamage = 25f;
+		[SerializeField] private float laserWidth = 1f;
+		[SerializeField] private float laserHeight = 0.5f;
+		[SerializeField] private int laserCount = 4;
 		[SerializeField] private GameObject indicatorPrefab;
 
 		private readonly Stack<(Vector3, Vector3)> laserData = new(); // (Origin, Direction) 튜플 값을 갖는 Stack
 		private readonly List<LineRenderer> indicators = new();
-		private readonly YieldInstruction startYield = new WaitForSeconds(2);
-		private readonly YieldInstruction performYield = new WaitForSeconds(1);
+		private readonly YieldInstruction startYield = new WaitForSeconds(1f);
+		private readonly YieldInstruction performYield = new WaitForSeconds(0.5f);
 
-		private float effectPosZ = -50f;
-		private float effectPosY = 0.6f;
 		private float laserLength = 100f;
+		private float effectPosY = 0.6f;
 		private Vector3 minPos;
 		private Vector3 maxPos;
 
@@ -81,7 +84,19 @@ namespace Boss.Skills
 				BossVFXManager.Instance.Spawn(VFXType.VerticalLineCrack, laserTuple.Item1,
 					Quaternion.LookRotation(laserTuple.Item2));
 
-				// BoxSweep[Physics.BoxCast()] and Attack
+				// --- 도형(박스) 충돌 체크 및 데미지 ---
+				Vector3 boxCenter = laserTuple.Item1 + laserTuple.Item2 * (laserLength * 0.5f);
+				Vector3 halfExtents = new Vector3(laserWidth * 0.5f, laserHeight * 0.5f, laserLength * 0.5f);
+				Quaternion boxRotation = Quaternion.LookRotation(laserTuple.Item2);
+
+				Collider[] hits = Physics.OverlapBox(boxCenter, halfExtents, boxRotation);
+				foreach (Collider col in hits)
+				{
+					if (col.TryGetComponent<IDamageable>(out var damageable))
+					{
+						damageable.TakeDamage(laserDamage, gameObject);
+					}
+				}
 			}
 
 			yield return performYield;
