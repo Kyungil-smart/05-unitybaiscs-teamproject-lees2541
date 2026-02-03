@@ -4,13 +4,13 @@ using UnityChan;
 using UnityEditor;
 using UnityEngine;
 
-public class ItemController : MonoBehaviour
+public class Side_AddJump : MonoBehaviour
 {
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            PlayerMove GetJump = other.GetComponent<PlayerMove>();
+            Side_PlayerController GetJump = other.GetComponent<Side_PlayerController>();
 
             if (GetJump != null)
             {
