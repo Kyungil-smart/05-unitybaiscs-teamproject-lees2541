@@ -537,6 +537,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 100076, guid: 1dc23b8711f0e7b48b1d555effb5b8f2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1509939498}
+    - targetCorrespondingSourceObject: {fileID: 100076, guid: 1dc23b8711f0e7b48b1d555effb5b8f2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1509939508}
   m_SourcePrefab: {fileID: 100100000, guid: 1dc23b8711f0e7b48b1d555effb5b8f2, type: 3}
 --- !u!4 &315233162 stripped
 Transform:
@@ -4609,6 +4612,28 @@ MonoBehaviour:
   currentHealth: 0
   destroyOnDeath: 1
   destroyDelay: 0
+--- !u!114 &1509939508
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1509939488}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89bcb2bddfdfd4d45a89fb1c2d82630a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  offset: {x: 0, y: 2, z: 0}
+  barWidth: 100
+  barHeight: 10
+  healthColor: {r: 0.2, g: 0.8, b: 0.2, a: 1}
+  damageColor: {r: 0.8, g: 0.2, b: 0.2, a: 1}
+  backgroundColor: {r: 0.3, g: 0.3, b: 0.3, a: 0.9}
+  borderColor: {r: 0, g: 0, b: 0, a: 1}
+  hideWhenFull: 1
+  faceCamera: 1
+  smoothSpeed: 5
 --- !u!1 &1559983296
 GameObject:
   m_ObjectHideFlags: 0

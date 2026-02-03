@@ -43,8 +43,8 @@ namespace Boss
 					BossSkillType randomElement = values[Random.Range(0, values.Length)];
 					controller.CastSkill(randomElement);
 
-					yield return skillYield;
 					while (controller.IsCasting) yield return null;
+					yield return skillYield;
 				}
 				else yield return null;
 			}
