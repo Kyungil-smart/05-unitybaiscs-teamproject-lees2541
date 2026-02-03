@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class PlayerMove : MonoBehaviour
+public class Side_layerMove : MonoBehaviour
 {
     float haxis;
     Vector3 moveVec;
@@ -51,7 +51,6 @@ public class PlayerMove : MonoBehaviour
         {
             rigid.AddForce(Vector3.up * _jumpforce, ForceMode.Impulse);
             isJump = true;
-            anim.SetBool("Jump", true);
         }
 
     }
