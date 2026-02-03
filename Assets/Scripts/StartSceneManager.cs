@@ -1,12 +1,11 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class StartSceneManager : MonoBehaviour
 {
 	public void OnStartBtnClicked()
 	{
 		PlayerPrefs.SetFloat("StartTime", Time.time);
-		SceneManager.LoadScene(1);
+		LevelLoader.Instance.LoadLevel("FirstPersonScene");
 	}
 
 	public void OnExitBtnClicked()

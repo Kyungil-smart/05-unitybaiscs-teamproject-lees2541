@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class FPSPortal : MonoBehaviour
 {
@@ -7,7 +6,7 @@ public class FPSPortal : MonoBehaviour
 	{
 		if (other.CompareTag("Player"))
 		{
-			SceneManager.LoadScene("SideViewScene");
+			LevelLoader.Instance.LoadLevel("SideViewScene");
 		}
 	}
 }

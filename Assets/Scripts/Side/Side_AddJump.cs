@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityChan;
-using UnityEditor;
 using UnityEngine;
 
 public class Side_AddJump : MonoBehaviour

@@ -1,4 +1,3 @@
-using System;
 using Boss.VFX;
 using UnityChan.Combat;
 using UnityEngine;
@@ -8,8 +7,8 @@ namespace Boss.Skills
 {
 	public class BossBasicSkillProjectile : MonoBehaviour
 	{
-		public float Damage = 25;
-		private Rigidbody rigidbody;
+		public float damage = 25;
+		private new Rigidbody rigidbody;
 		private Transform model;
 		private Vector3 rotDir;
 
@@ -41,7 +40,7 @@ namespace Boss.Skills
 		{
 			if (other.gameObject.CompareTag("Player"))
 			{
-				other.gameObject.GetComponent<IDamageable>()?.TakeDamage(Damage, gameObject);
+				other.gameObject.GetComponent<IDamageable>()?.TakeDamage(damage, gameObject);
 			}
 			else
 			{
@@ -50,7 +49,7 @@ namespace Boss.Skills
 				{
 					if (col.TryGetComponent<IDamageable>(out var damageable))
 					{
-						damageable.TakeDamage(Damage, gameObject);
+						damageable.TakeDamage(damage, gameObject);
 					}
 				}
 			}

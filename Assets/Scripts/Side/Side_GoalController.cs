@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class Side_GoalController : MonoBehaviour
 {
@@ -12,7 +9,7 @@ public class Side_GoalController : MonoBehaviour
     }
     private void _setRotation()
     { 
-        // ¿¹½Ã: YÃàÀ¸·Î ¸Å ÇÁ·¹ÀÓ 3µµ¾¿ È¸Àü
+        // ï¿½ï¿½ï¿½ï¿½: Yï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 3ï¿½ï¿½ï¿½ï¿½ È¸ï¿½ï¿½
         transform.Rotate(0, 3, 0);
     }
 
