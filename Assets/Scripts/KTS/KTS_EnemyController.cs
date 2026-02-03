@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityChan.Combat;
 using UnityEngine;
@@ -9,11 +8,17 @@ public class KTS_EnemyController : MonoBehaviour
 {
 	[SerializeField] private List<Transform> path;
 	[SerializeField] private GameObject keyPrefab;
+	[SerializeField, Range(0, 2f)] private float attackRange = 1f;
+	[SerializeField] private float damage = 10f;
+	[SerializeField] private float attackCooldown = 3f;
 
 	private HealthSystem healthSystem;
 	private NavMeshAgent navMeshAgent;
+	private Animator animator;
+	private Transform trackTarget;
 
-	private int currentPatrolPointIndex = 0;
+	private int currentPatrolPointIndex;
+	private float lastAttackTime;
 
 	enum State
 	{
@@ -28,6 +33,7 @@ public class KTS_EnemyController : MonoBehaviour
 	{
 		healthSystem = GetComponent<HealthSystem>();
 		navMeshAgent = GetComponent<NavMeshAgent>();
+		animator = GetComponent<Animator>();
 	}
 
 	private void Start()
@@ -46,6 +52,7 @@ public class KTS_EnemyController : MonoBehaviour
 				Move();
 				break;
 			case State.Attack:
+				TryAttack();
 				break;
 			case State.Dead:
 				break;
@@ -53,6 +60,28 @@ public class KTS_EnemyController : MonoBehaviour
 				throw new ArgumentOutOfRangeException();
 		}
 	}
+
+	private void TryAttack()
+	{
+		navMeshAgent.SetDestination(trackTarget.position);
+		animator.SetBool("IsMoving", navMeshAgent.remainingDistance > navMeshAgent.stoppingDistance);
+
+		if (Vector3.Distance(trackTarget.position, transform.position) < attackRange)
+		{
+			Attack();
+		}
+	}
+
+	private void Attack()
+	{
+		if (Time.time < lastAttackTime + attackCooldown) return;
+
+		var damageable = trackTarget.GetComponent<IDamageable>();
+		damageable.TakeDamage(damage, gameObject);
+		lastAttackTime = Time.time;
+		animator.SetTrigger("Attack");
+	}
+
 
 	private void Move()
 	{
@@ -66,6 +95,17 @@ public class KTS_EnemyController : MonoBehaviour
 
 	private void Die()
 	{
+		state = State.Dead;
 		var go = Instantiate(keyPrefab, transform.position, Quaternion.identity);
+	}
+
+	private void OnTriggerEnter(Collider other)
+	{
+		if (other.CompareTag("Player"))
+		{
+			state = State.Attack;
+			trackTarget = other.transform;
+			animator.SetBool("FoundEnemy", true);
+		}
 	}
 }
