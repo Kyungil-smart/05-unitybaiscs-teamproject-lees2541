@@ -1,15 +1,38 @@
+using System;
 using UnityEngine;
 
 public class CursorStateSetter : MonoBehaviour
 {
-	private void Start()
+	private static CursorStateSetter instance;
+	private bool isLocked = true;
+
+	private void Awake()
 	{
-		CursorLock(true);
+		if (instance != null) Destroy(gameObject);
+		else
+		{
+			instance = this;
+			DontDestroyOnLoad(gameObject);
+		}
 	}
 
-	private void CursorLock(bool isLocked)
+	private void Start()
 	{
-		Cursor.lockState = isLocked ? CursorLockMode.Locked : CursorLockMode.None;
-		Cursor.visible = !isLocked;
+		CursorLock(isLocked);
+	}
+
+	private void Update()
+	{
+		if (Input.GetKeyDown(KeyCode.LeftAlt))
+		{
+			CursorLock(!isLocked);
+			isLocked = !isLocked;
+		}
+	}
+
+	private void CursorLock(bool locked)
+	{
+		Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
+		Cursor.visible = !locked;
 	}
 }
