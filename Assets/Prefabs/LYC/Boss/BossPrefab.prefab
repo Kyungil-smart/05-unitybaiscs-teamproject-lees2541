@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6228657738027623114}
   - component: {fileID: 7404538486488789918}
   - component: {fileID: 8513953894037220491}
+  - component: {fileID: 1194228587904305321}
   - component: {fileID: 5740665149380096929}
   - component: {fileID: 4443496438572485368}
   - component: {fileID: 7627652539778493109}
@@ -49,7 +50,7 @@ Animator:
   m_GameObject: {fileID: 4621560495879117991}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 13566151835b6f54798a8f768a48aae3, type: 3}
-  m_Controller: {fileID: 9100000, guid: 662f62cedb904ad49b947561b6420c62, type: 2}
+  m_Controller: {fileID: 9100000, guid: 3ec59a1604b8cc94aaab12b276503077, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -73,6 +74,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enableDebug: 1
+--- !u!114 &1194228587904305321
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4621560495879117991}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 158321b99890435daa5c0d247db67235, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultHP: 70
+  hpChanged:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &5740665149380096929
 MonoBehaviour:
   m_ObjectHideFlags: 0

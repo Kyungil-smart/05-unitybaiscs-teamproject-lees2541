@@ -1,6 +1,10 @@
+using System;
+using System.Collections;
+using System.Linq;
 using Boss.Skills;
-using Boss.VFX;
+using UnityChan.Combat;
 using UnityEngine;
+using UnityEngine.Events;
 using Random = UnityEngine.Random;
 
 namespace Boss
@@ -9,26 +13,69 @@ namespace Boss
 	{
 		[SerializeField] private bool enableDebug;
 
+		public UnityEvent BossDied;
+		public UnityEvent<float, float> HPChanged;
+
 		private BossController controller;
+		private HealthSystem health;
+
+		private YieldInstruction skillYield = new WaitForSeconds(2.5f);
 
 		private void Awake()
 		{
 			controller = GetComponent<BossController>();
+			health = GetComponent<HealthSystem>();
 		}
 
-		private void Update()
+		private void Start()
 		{
-			// Test
-			if (Input.GetMouseButtonDown(0))
+			health.OnDamaged += _ => HPChanged?.Invoke(health.CurrentHealth, health.MaxHealth);
+			StartCoroutine(BossLogic());
+		}
+
+		IEnumerator BossLogic()
+		{
+			var values = Enum.GetValues(typeof(BossSkillType)).Cast<BossSkillType>().ToArray();
+			while (health.IsAlive)
 			{
-				BossVFXManager.Instance.Spawn(VFXType.GroundDustExplosion,
-					new Vector3(Random.Range(-5, 5), 0.01f, Random.Range(-5, 5)), Quaternion.identity);
+				if (!enableDebug)
+				{
+					BossSkillType randomElement = values[Random.Range(0, values.Length)];
+					controller.CastSkill(randomElement);
+
+					yield return skillYield;
+					while (controller.IsCasting) yield return null;
+				}
+				else yield return null;
 			}
+
+			Die();
+		}
+
+		void Die()
+		{
+			StopAllCoroutines();
+			controller.StopAllCoroutines();
+			controller.CancelSkillForce();
+			BossSceneManager.Instance.SetCamera(BossSceneManager.BossCameraInfo.BossCameraType.BossDie);
+			BossDied?.Invoke();
+
+			Invoke(nameof(CallSceneManager), 4f);
+		}
+
+		void CallSceneManager()
+		{
+			BossSceneManager.Instance.GameEnd();
 		}
 
 		private void OnGUI()
 		{
 			if (!enableDebug) return;
+			if (GUILayout.Button("Kill Boss"))
+			{
+				Die();
+			}
+
 			if (GUILayout.Button("Cast Basic"))
 			{
 				controller.CastSkill(BossSkillType.BasicCast);
@@ -38,7 +85,6 @@ namespace Boss
 			{
 				controller.CastSkill(BossSkillType.HorizontalLaser);
 			}
-
 
 			if (GUILayout.Button("Cast VerticalLaser"))
 			{
