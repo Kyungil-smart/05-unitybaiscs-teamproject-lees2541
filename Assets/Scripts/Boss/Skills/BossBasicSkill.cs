@@ -11,10 +11,10 @@ namespace Boss.Skills
 	{
 		public BossSkillType Type => BossSkillType.BasicCast;
 
-		[SerializeField] private int projectileCount = 10;
+		[SerializeField] private int projectileCount = 18;
 		[SerializeField] private GameObject projectilePrefab;
 
-		private static readonly YieldInstruction startYield = new WaitForSeconds(4f);
+		private static readonly YieldInstruction startYield = new WaitForSeconds(.5f);
 		private static readonly YieldInstruction performYield = new WaitForSeconds(1f);
 
 		private Stack<BossBasicSkillProjectile> projectiles = new();

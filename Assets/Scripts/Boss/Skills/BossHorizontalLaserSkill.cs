@@ -22,8 +22,8 @@ namespace Boss.Skills
 
 		private readonly Stack<(Vector3, Vector3)> laserData = new(); // (Origin, Direction) 튜플 값
 		private readonly List<LineRenderer> indicators = new();
-		private readonly YieldInstruction startYield = new WaitForSeconds(2);
-		private readonly YieldInstruction performYield = new WaitForSeconds(1);
+		private readonly YieldInstruction startYield = new WaitForSeconds(1f);
+		private readonly YieldInstruction performYield = new WaitForSeconds(0.5f);
 
 		private float effectPosY = 0.6f;
 		private float laserLength = 100f;

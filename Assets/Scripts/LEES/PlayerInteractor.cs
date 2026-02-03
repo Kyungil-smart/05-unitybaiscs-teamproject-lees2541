@@ -48,7 +48,7 @@ namespace UnityChan
 
 			if (Input.GetKeyDown(KeyCode.F))
 			{
-				CurrentInteractable.Interact();
+				CurrentInteractable?.Interact();
 			}
 		}
 
