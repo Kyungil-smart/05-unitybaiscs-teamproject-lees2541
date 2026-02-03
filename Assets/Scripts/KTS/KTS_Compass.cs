@@ -27,7 +27,7 @@ public class KTS_Compass : MonoBehaviour
 	{
 		if (other.CompareTag("Player"))
 		{
-			SceneManager.LoadScene("BossStage"); //소괄호 안에 이동할 Scene 이름 입력)
+			LevelLoader.Instance.LoadLevel("BossStage");
 		}
 	}
 }
