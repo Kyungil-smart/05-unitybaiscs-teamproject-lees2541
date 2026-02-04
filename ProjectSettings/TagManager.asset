@@ -5,6 +5,8 @@ TagManager:
   serializedVersion: 2
   tags:
   - PlayerEyes
+  - AddJumpChance
+  - AddJumpForce
   layers:
   - Default
   - TransparentFX
@@ -13,10 +15,10 @@ TagManager:
   - Water
   - UI
   - Post Processing
-  - 
-  - 
-  - 
-  - 
+  - BackGround
+  - Ground
+  - Wall
+  - Player
   - 
   - 
   - 
