@@ -20,6 +20,7 @@ public class KTS_QuarterSceneManager : MonoBehaviour
 
 	private void Start()
 	{
+		foundKeyCount = 0;
 		playerController.GetComponent<HealthSystem>().OnDeath +=
 			() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 		changed = UpdateUI;

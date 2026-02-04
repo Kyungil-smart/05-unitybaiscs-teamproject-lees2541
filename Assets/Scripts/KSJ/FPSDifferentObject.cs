@@ -22,6 +22,7 @@ public class FPSDifferentObject : MonoBehaviour, IInteract
 
 	void OnInteracted()
 	{
+		if (!enabled || !gameObject.activeSelf) return;
 		// 이펙트 생성
 		ParticleSystem effect = Instantiate(destroyEffectPrefab, transform.position, Quaternion.identity)
 			.GetComponent<ParticleSystem>();

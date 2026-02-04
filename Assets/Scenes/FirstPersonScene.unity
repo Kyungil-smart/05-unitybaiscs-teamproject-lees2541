@@ -203,7 +203,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 507772447966098055, guid: 8dc85082dfa40a14bb1e68188154ac57, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -7.549999
+      value: -7.84
       objectReference: {fileID: 0}
     - target: {fileID: 507772447966098055, guid: 8dc85082dfa40a14bb1e68188154ac57, type: 3}
       propertyPath: m_LocalPosition.y
@@ -6125,6 +6125,7 @@ MonoBehaviour:
   mainTitle: {fileID: 4101493502618349208}
   missionTitle: {fileID: 856406838}
   missionClearTitle: {fileID: 757434365}
+  playerObject: {fileID: 410370332}
 --- !u!4 &807452529
 Transform:
   m_ObjectHideFlags: 0
@@ -12476,7 +12477,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 507772447966098055, guid: 8dc85082dfa40a14bb1e68188154ac57, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -7.549999
+      value: -7.82
       objectReference: {fileID: 0}
     - target: {fileID: 507772447966098055, guid: 8dc85082dfa40a14bb1e68188154ac57, type: 3}
       propertyPath: m_LocalPosition.y
@@ -16620,6 +16621,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2392694763179294115, guid: eca8b5e65f67de34289e4c87c51754c5, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5332091043927268901, guid: eca8b5e65f67de34289e4c87c51754c5, type: 3}
+      propertyPath: m_Convex
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

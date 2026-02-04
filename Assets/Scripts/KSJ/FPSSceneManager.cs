@@ -1,6 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class FPSSceneManager : MonoBehaviour
 {
@@ -12,9 +13,12 @@ public class FPSSceneManager : MonoBehaviour
 
 	private static int foundObjectCount;
 	private static Action countChanged;
+	public Transform playerObject;
+
 
 	private void Start()
 	{
+		foundObjectCount = 0;
 		CheckFoundObjectCountAsync().Forget();
 		countChanged += OnCountChanged;
 		mainTitle.ActivateOnce();
@@ -22,6 +26,15 @@ public class FPSSceneManager : MonoBehaviour
 
 		countChanged?.Invoke();
 	}
+
+	private void Update()
+	{
+		if (playerObject?.position.y < -5)
+		{
+			SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+		}
+	}
+
 
 	private void OnDestroy()
 	{
